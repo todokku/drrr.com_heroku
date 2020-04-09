@@ -1,5 +1,5 @@
 click==7.0
-giphy_client=1.0.0
+giphy_client==1.0.0
 jikanpy==3.4.2
 youtube_dl==2020.3.24
 requests-toolbelt==0.9.1
