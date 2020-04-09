@@ -1,0 +1,35 @@
+{
+  "game": "jogo da forca",
+  "games_list":{
+  "game_1": { 
+    "nome": "ABACATE",
+    "post": "_______",
+    "dica_1":"Fruta",
+    "dica_2":"E verde e se faz suco"
+    },
+    "game_2": { 
+        "nome": "BANANA",
+        "post": "_______",
+        "dica_1":"Fruta",
+        "dica_2":"E amarelo"
+    },
+    "game_3": { 
+        "nome": "MORANGO",
+        "post": "_______",
+        "dica_1":"Fruta",
+        "dica_2":"E vermelho"
+    },
+    "game_4": { 
+        "nome": "MELÂO",
+        "post": "_______",
+        "dica_1":"Fruta",
+        "dica_2":"E verde"
+    },
+    "game_5": { 
+        "nome": "PITAYA",
+        "post": "_______",
+        "dica_1":"Fruta",
+        "dica_2":"E rosa"
+    }
+}
+}
