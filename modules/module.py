@@ -264,7 +264,7 @@ class Commands(object):
                     }
                     self.post(message="▷Carregando▷")
                     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                        link = "{}".format(message)
+                        link = "https://www.youtube.com/watch?v={}".format(message)
                         filenames = ([link])
                         ydl.download(filenames)
                     prefixo ='.mp3'
@@ -323,7 +323,9 @@ class Commands(object):
                       url='%s' % (api_response.data.image_url))
 
     def music_help(self, message, name_sender):
-        self.post(message="Para colocar musica digite: /m <link-do_youtube>")  # deixa a sala
+        ajuda_musica = "https://i.imgur.com/qDe9YpO.png"
+        self.post(message="Como usar musica.", url='{}'.format
+                  (ajuda_musica))  # deixa a sala
 
     """
 
