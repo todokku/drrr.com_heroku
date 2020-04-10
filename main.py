@@ -9,7 +9,7 @@ import json
 import requests
 
 name = 'Athus'
-icon = 'zaika'
+icon = 'tanaka'
 file_name = 'athus.cookie'
 bot = connect.Connect(name=name, icon=icon)
 enter_room = module.Commands()

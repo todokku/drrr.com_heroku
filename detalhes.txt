@@ -1,1 +1,5 @@
 adicionar no heroku  : https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
+
+
+
+pip install -r requirements.txt
