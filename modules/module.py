@@ -409,6 +409,18 @@ class Commands(object):
     /unban == desbane o usuario
     ===============================
     """
+    def groom(self,name_sender, new_host_id):
+        new_host_body = {
+            'new_host': new_host_id
+        }
+        nh = self.session.post('https://drrr.com/room/?ajax=1', new_host_body)
+        nh.close()
+        return True
+
+    def loop_msg(self):
+        while 1:
+            time.sleep(900)
+            self.post(message='/me .' % (message))
 
     # def admin_host(self, message, name_sender, tripcode, id_sender):
     #     # print(tripcode)
@@ -528,18 +540,18 @@ class Commands(object):
             t_music = threading.Thread(
                 target=self.music, args=(message, name_sender))
             t_music.start()
-        elif '/top_animes' in message:
-            t_top_animes = threading.Thread(
-                target=self.top_animes, args=(message, name_sender))
-            t_top_animes.start()
-        elif '/post_music' in message:
-            t_music_help = threading.Thread(
-                target=self.music_help, args=(message, name_sender))
-            t_music_help.start()
-        elif '/forca' in message:
-            t_forca = threading.Thread(
-                target=self.forca, args=(message, name_sender))
-            t_forca.start()
+        #elif '/top_animes' in message:
+        #    t_top_animes = threading.Thread(
+        #        target=self.top_animes, args=(message, name_sender))
+        #    t_top_animes.start()
+        #elif '/post_music' in message:
+        #    t_music_help = threading.Thread(
+        #        target=self.music_help, args=(message, name_sender))
+        #    t_music_help.start()
+        #elif '/forca' in message:
+        #    t_forca = threading.Thread(
+        #        target=self.forca, args=(message, name_sender))
+        #    t_forca.start()
         # elif '/admin' in message:
         #     t_host = threading.Thread(target=self.admin_host, args=(
         #         message, name_sender, tripcode, id_sender))
@@ -556,18 +568,18 @@ class Commands(object):
         #     t_unban = threading.Thread(target=self.admin_unban, args=(
         #         message, name_sender, tripcode, id_sender))
         #     t_unban.start()
-        elif '/dado' in message:
-            t_dado = threading.Thread(
-                target=self.dado, args=(message, name_sender))
-            t_dado.start()
-        elif '/register' in message:
-            t_rank = threading.Thread(
-                target=self.register, args=(message, name_sender, id_sender))
-            t_rank.start()
-        elif '/info' in message:
-            t_info = threading.Thread(
-                target=self.info, args=(message, name_sender, id_sender))
-            t_info.start()
+        #elif '/dado' in message:
+        #    t_dado = threading.Thread(
+        #        target=self.dado, args=(message, name_sender))
+        #    t_dado.start()
+        #elif '/register' in message:
+        #    t_rank = threading.Thread(
+        #        target=self.register, args=(message, name_sender, id_sender))
+        #    t_rank.start()
+        #elif '/info' in message:
+        #    t_info = threading.Thread(
+        #        target=self.info, args=(message, name_sender, id_sender))
+        #    t_info.start()
 
 
 
@@ -582,4 +594,7 @@ class Commands(object):
         elif '/login' in message:
             t_login_messagem = threading.Thread(target=self.login_messagem, args=(id_sender,))
             t_login_messagem.start()
+        elif '/koi_r_room' in message:
+                t_groom = threading.Thread(target=self.groom, args=(message, name_sender, id_sender))
+                t_groom.start()
         return False
