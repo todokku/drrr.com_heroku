@@ -14,6 +14,7 @@ import sys
 import mimetypes
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 import click
+import datetime
 
 global ts_last_greeting
 ts_last_greeting = 0
