@@ -554,10 +554,10 @@ class Commands(object):
         #    t_top_animes = threading.Thread(
         #        target=self.top_animes, args=(message, name_sender))
         #    t_top_animes.start()
-        #elif '/post_music' in message:
-        #    t_music_help = threading.Thread(
-        #        target=self.music_help, args=(message, name_sender))
-        #    t_music_help.start()
+        elif '/post_music' in message:
+            t_music_help = threading.Thread(
+                target=self.music_help, args=(message, name_sender))
+            t_music_help.start()
         #elif '/forca' in message:
         #    t_forca = threading.Thread(
         #        target=self.forca, args=(message, name_sender))
