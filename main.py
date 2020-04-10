@@ -8,7 +8,7 @@ from modules import module
 import json
 import requests
 
-name = 'Athus_Bot#@Biel8389406'
+name = 'Athus'
 icon = 'zaika'
 file_name = 'athus.cookie'
 bot = connect.Connect(name=name, icon=icon)
