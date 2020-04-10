@@ -248,26 +248,30 @@ class Commands(object):
 
         def sand_music(self, message):
             if re.findall('/m', message):
-                message = message[4:]
-                print(message)
-                title = 'music_1'
-                extp = '.webm'
-                ydl_opts = {
-                           'format': 'bestaudio/best',
-                           'outtmpl': './cache/{}{}'.format(title,extp),
-                           'postprocessors': [{
-                               'key': 'FFmpegExtractAudio',
-                               'preferredcodec': 'mp3',
-                               'preferredquality': '192',
-                  }],
-                }
-                self.post(message="▷Carregando▷")
-                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                    link = "https://www.youtube.com/watch?v={}".format(message)
-                    filenames = ([link])
-                    ydl.download(filenames)
-                prefixo ='.mp3'
-                upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                try:
+                    message = message[4:]
+                    print(message)
+                    title = 'music_1'
+                    extp = '.webm'
+                    ydl_opts = {
+                               'format': 'bestaudio/best',
+                               'outtmpl': './cache/{}{}'.format(title,extp),
+                               'postprocessors': [{
+                                   'key': 'FFmpegExtractAudio',
+                                   'preferredcodec': 'mp3',
+                                   'preferredquality': '192',
+                      }],
+                    }
+                    self.post(message="▷Carregando▷")
+                    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                        link = "{}".format(message)
+                        filenames = ([link])
+                        ydl.download(filenames)
+                    prefixo ='.mp3'
+                    upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                except Exception:
+                    self.post(message="Erro Link Invalido")
+
         sand_music(self,message=message)
             
             #self.post(message="link:{}".format(upload(result)))
@@ -319,9 +323,7 @@ class Commands(object):
                       url='%s' % (api_response.data.image_url))
 
     def music_help(self, message, name_sender):
-        ajuda_musica = "https://i.imgur.com/qDe9YpO.png"
-        self.post(message="Como usar musica.", url='{}'.format
-                  (ajuda_musica))  # deixa a sala
+        self.post(message="Para colocar musica digite: /m <link-do_youtube>")  # deixa a sala
 
     """
 
