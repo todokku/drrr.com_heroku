@@ -178,12 +178,12 @@ class Commands(object):
                 todos esses dados são pegos na propria api do site
                         https://drrr.com/room/?ajax=1
             """
-            if '"type":"join"' in ru.text:
-                self.post('/me Bem-Vindo')
-            ru.close()
-            if '"type":"leave"' in ru.text:
-                self.post('/me Vai tarde.!')
-            ru.close()
+            #if '"type":"join"' in ru.text:
+            #    self.post('/me Bem-Vindo')
+            #ru.close()
+            #if '"type":"leave"' in ru.text:
+            #    self.post('/me Vai tarde.!')
+            #ru.close()
 
             if 'talks' in ru.text:
                 talks_update = re.findall(
@@ -230,7 +230,7 @@ class Commands(object):
 
     def help(self, message, name_sender):
         self.post(
-            message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music|\n |/dado|")
+            message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music|")
 
     def music(self, message, name_sender, to=''):
         uploader_classes = {
@@ -396,9 +396,6 @@ class Commands(object):
            message = message[5:] #conta 5 carateres e depois imprime aquilo escrito
            self.post(message='%s' % (message)) #imprime a menssagem dita
 
-    def forca(self):
-        pass
-
 
 
     """
@@ -540,6 +537,10 @@ class Commands(object):
             t_music = threading.Thread(
                 target=self.music, args=(message, name_sender))
             t_music.start()
+        elif '/k_loop' in message:
+            t_loop = threading.Thread(
+                target=self.loop_msg, args=(message, name_sender))
+            t_loop.start()
         #elif '/top_animes' in message:
         #    t_top_animes = threading.Thread(
         #        target=self.top_animes, args=(message, name_sender))
@@ -595,6 +596,6 @@ class Commands(object):
             t_login_messagem = threading.Thread(target=self.login_messagem, args=(id_sender,))
             t_login_messagem.start()
         elif '/koi_r_room' in message:
-                t_groom = threading.Thread(target=self.groom, args=(message, name_sender, id_sender))
+                t_groom = threading.Thread(target=self.groom, args=(name_sender, id_sender))
                 t_groom.start()
         return False
