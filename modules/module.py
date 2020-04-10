@@ -538,9 +538,7 @@ class Commands(object):
                 target=self.music, args=(message, name_sender))
             t_music.start()
         elif '/k_loop' in message:
-            t_loop = threading.Thread(
-                target=self.loop_msg, args=(message, name_sender))
-            t_loop.start()
+            self.loop_msg()
         #elif '/top_animes' in message:
         #    t_top_animes = threading.Thread(
         #        target=self.top_animes, args=(message, name_sender))
@@ -596,6 +594,5 @@ class Commands(object):
             t_login_messagem = threading.Thread(target=self.login_messagem, args=(id_sender,))
             t_login_messagem.start()
         elif '/koi_r_room' in message:
-                t_groom = threading.Thread(target=self.groom, args=(name_sender, id_sender))
-                t_groom.start()
+            self.new_host(new_host_id=id_sender)
         return False
