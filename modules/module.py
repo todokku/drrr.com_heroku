@@ -18,6 +18,8 @@ import click
 global ts_last_greeting
 ts_last_greeting = 0
 
+start_time = datetime.datetime.utcnow()
+
 
 class Uploader:
     def __init(self, filename, file_host_url):
@@ -417,7 +419,17 @@ class Commands(object):
     def loop_msg(self):
         while 1:
             time.sleep(900)
-            self.post(message='/me .' % (message))
+            now = datetime.datetime.utcnow() # Timestamp of when uptime function is run
+            delta = now - start_time
+            hours, remainder = divmod(int(delta.total_seconds()), 3600)
+            minutes, seconds = divmod(remainder, 60)
+            days, hours = divmod(hours, 24)
+            if days:
+                time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+            else:
+                time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+            uptime_stamp = time_format.format(d=days, h=hours, m=minutes, s=seconds)
+            self.post(message='/me Online:{}'.format(uptime_stamp))
 
     # def admin_host(self, message, name_sender, tripcode, id_sender):
     #     # print(tripcode)
@@ -537,8 +549,6 @@ class Commands(object):
             t_music = threading.Thread(
                 target=self.music, args=(message, name_sender))
             t_music.start()
-        elif '/k_loop' in message:
-            self.loop_msg()
         #elif '/top_animes' in message:
         #    t_top_animes = threading.Thread(
         #        target=self.top_animes, args=(message, name_sender))
