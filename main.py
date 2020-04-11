@@ -21,7 +21,7 @@ if not os.path.isfile(file_name):
 # rooms.load_cookie(file_name=file_name)
 # rooms.search_room()
 #url_input_room = input("Enter Room Id")
-url_room = 'https://drrr.com/room/?id=EVyAZ2UNN7'  # .format(url_input_room)
+url_room = 'https://drrr.com/room/?id=wtSQgq17RI'  # .format(url_input_room)
 
 
 # main

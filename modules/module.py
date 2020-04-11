@@ -19,7 +19,6 @@ import datetime
 global ts_last_greeting
 ts_last_greeting = 0
 
-start_time = datetime.datetime.utcnow()
 
 
 class Uploader:
@@ -93,6 +92,8 @@ class CatboxUploader(Uploader):
 class Commands(object):
     def __init__(self):
         self.session = requests.session()
+        self.start_time = ''
+        self.last_player = ""
 
         """
         Modulos de conexão com o servidor Drrr.com
@@ -169,6 +170,7 @@ class Commands(object):
     def room_update(self, room_text):
         update = re.search('"update":\d+.\d+', room_text).group(0)[9:]
         url_room_update = 'https://drrr.com/json.php?update=' + update
+        self.start_time = datetime.datetime.utcnow()
         while 1:
             time.sleep(1)
             ru = self.session.get(url_room_update)
@@ -235,7 +237,7 @@ class Commands(object):
         self.post(
             message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music|")
 
-    def music(self, message, name_sender, to=''):
+    def music(self, message, name_sender, id_sender):
         uploader_classes = {
         "catbox": CatboxUploader,
         "fileio": FileioUploader}
@@ -272,9 +274,10 @@ class Commands(object):
                         ydl.download(filenames)
                     prefixo ='.mp3'
                     upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                    self.last_player = id_sender
                 except Exception:
                     self.post(message="Erro Link Invalido")
-
+                    self.last_player = id_sender
         sand_music(self,message=message)
             
             #self.post(message="link:{}".format(upload(result)))
@@ -308,22 +311,22 @@ class Commands(object):
         self.post(message="Top_5 animes \n 1°{}\n2°{}\n3°{}\n4°{}\n5°{}.".format(
             anime_name[0], anime_name[1], anime_name[2], anime_name[3], anime_name[4]))
 
-    def ghipy(self, message, name_sender, to=''):
-        if re.findall('/gif .*', message):
-            message = message[5:]
-            api_instance = giphy_client.DefaultApi()
-            # str | Giphy API Key.
-            api_key = 'oe533d6kfwvoxrJgC6fDSi6WcSnqyEPb'
-            tag = message  # str | Filters results by specified tag. (optional)
-            # str | Filters results by specified rating. (optional)
-            rating = 'g'
-            # str | Used to indicate the expected response format. Default is Json. (optional) (default to json)
-            fmt = 'json'
-
-            api_response = api_instance.gifs_random_get(
-                api_key, tag=tag, rating=rating, fmt=fmt)
-            self.post(message='{}-@{}'.format(message, name_sender),
-                      url='%s' % (api_response.data.image_url))
+    def ghipy(self, message, name_sender, id_sender):
+    	if re.findall('/gif .*', message):
+	        message = message[5:]
+	        api_instance = giphy_client.DefaultApi()
+	        # str | Giphy API Key.
+	        api_key = 'oe533d6kfwvoxrJgC6fDSi6WcSnqyEPb'
+	        tag = message  # str | Filters results by specified tag. (optional)
+	        # str | Filters results by specified rating. (optional)
+	        rating = 'g'
+	        # str | Used to indicate the expected response format. Default is Json. (optional) (default to json)
+	        fmt = 'json'
+	        api_response = api_instance.gifs_random_get(
+	            api_key, tag=tag, rating=rating, fmt=fmt)
+	        self.post(message='{}-@{}'.format(message, name_sender),
+	                  url='%s' % (api_response.data.image_url))
+	        self.last_player = id_sender
 
     def music_help(self, message, name_sender):
         ajuda_musica = "https://i.imgur.com/qDe9YpO.png"
@@ -409,6 +412,7 @@ class Commands(object):
     /unban == desbane o usuario
     ===============================
     """
+
     def groom(self,name_sender, new_host_id):
         new_host_body = {
             'new_host': new_host_id
@@ -421,7 +425,7 @@ class Commands(object):
         while 1:
             time.sleep(900)
             now = datetime.datetime.utcnow() # Timestamp of when uptime function is run
-            delta = now - start_time
+            delta = now - self.start_time
             hours, remainder = divmod(int(delta.total_seconds()), 3600)
             minutes, seconds = divmod(remainder, 60)
             days, hours = divmod(hours, 24)
@@ -431,6 +435,19 @@ class Commands(object):
                 time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
             uptime_stamp = time_format.format(d=days, h=hours, m=minutes, s=seconds)
             self.post(message='/me Online:{}'.format(uptime_stamp))
+
+    def Online(self):
+        now = datetime.datetime.utcnow() # Timestamp of when uptime function is run
+        delta = now - self.start_time
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+        if days:
+            time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+        else:
+            time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+        uptime_stamp = time_format.format(d=days, h=hours, m=minutes, s=seconds)
+        self.post(message='/me Online:{}'.format(uptime_stamp))
 
     # def admin_host(self, message, name_sender, tripcode, id_sender):
     #     # print(tripcode)
@@ -544,11 +561,11 @@ class Commands(object):
             t_help.start()
         elif '/gif' in message:
             t_ghipy = threading.Thread(
-                target=self.ghipy, args=(message, name_sender))
+                target=self.ghipy, args=(message, name_sender, id_sender))
             t_ghipy.start()
         elif '/m' in message:
             t_music = threading.Thread(
-                target=self.music, args=(message, name_sender))
+                target=self.music, args=(message, name_sender,id_sender))
             t_music.start()
         #elif '/top_animes' in message:
         #    t_top_animes = threading.Thread(
@@ -592,8 +609,6 @@ class Commands(object):
         #    t_info.start()
 
 
-
-
     def handle_private_message(self, message, id_sender, name_sender):
         if '/koi' in message:
             self.leave_room() # deixa a sala
@@ -601,9 +616,10 @@ class Commands(object):
         elif '/sms' in message:
             t_mensagemprivate = threading.Thread(target=self.mensagemprivate, args=(message, name_sender, id_sender))
             t_mensagemprivate.start()
-        elif '/login' in message:
-            t_login_messagem = threading.Thread(target=self.login_messagem, args=(id_sender,))
-            t_login_messagem.start()
         elif '/koi_r_room' in message:
             self.new_host(new_host_id=id_sender)
+        elif '/time_up' in message:
+        	self.Online()
+        elif '/loop_koi' in message:
+            self.loop_msg()
         return False
