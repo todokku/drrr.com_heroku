@@ -314,7 +314,7 @@ class Commands(object):
 
 
     def admin_kick(self, message, name_sender, tripcode, id_sender):
-        if tripcode == "Bb8\/DUMRJU":
+        if tripcode == "TqOzGmy5V.":
             if re.findall('/kick', message):
                 message = message[7:]
 
@@ -338,7 +338,7 @@ class Commands(object):
 
 
     def admin_ban(self, message, name_sender, tripcode, id_sender):
-        if tripcode == "Bb8\/DUMRJU":
+        if tripcode == "TqOzGmy5V.":
             if re.findall('/ban', message):
                 message = message[6:]
                 rooms = self.session.get("https://drrr.com/json.php?update=")
