@@ -74,6 +74,7 @@ class Commands(object):
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
         self.spam = {"gif":False,"help":False,"music":False,"post_music":False}
+        self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2']
     
     def avoid_spam(self,com):
         time.sleep(5)
@@ -191,7 +192,7 @@ class Commands(object):
     def help(self, message, name_sender):
         commandName = 'help'
         if self.spam["help"] == False:
-            self.post(message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music| \n |/kick @user|\n |/ban @user|")
+            self.post(message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music| \n |==ADMIN==| \n |/kick name|\n |/ban name|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
@@ -314,51 +315,48 @@ class Commands(object):
 
 
     def admin_kick(self, message, name_sender, tripcode, id_sender):
-        if tripcode == "TqOzGmy5V.":
-            if re.findall('/kick', message):
-                message = message[7:]
+        for i in range(len(self.admin_list)):
+            if tripcode == self.admin_list[i]:
+                if re.findall('/kick', message):
+                    message = message[7:]
 
-                rooms = self.session.get("https://drrr.com/json.php?update=")
-                user = []
-                id_user = []
+                    rooms = self.session.get("https://drrr.com/json.php?update=")
+                    user = []
+                    id_user = []
 
-                if rooms.status_code == 200:
-                    rooms_data = json.loads(rooms.content)
-                for rooms in rooms_data['users']:
-                    user.append(rooms)
-                for j in range(len(user)):
-                    if user[j]['name'] == message:
-                        kick_body = {'kick': user[j]['id']}
-                        kc = self.session.post(
-                            'https://drrr.com/room/?ajax=1', kick_body)
-                        kc.close()
-                        break
-        else:
-            self.post(message='Você Não tem permissão! @{}'.format(name_sender))
+                    if rooms.status_code == 200:
+                        rooms_data = json.loads(rooms.content)
+                    for rooms in rooms_data['users']:
+                        user.append(rooms)
+                    for j in range(len(user)):
+                        if user[j]['name'] == message:
+                            kick_body = {'kick': user[j]['id']}
+                            kc = self.session.post(
+                                'https://drrr.com/room/?ajax=1', kick_body)
+                            kc.close()
+                            break
 
 
     def admin_ban(self, message, name_sender, tripcode, id_sender):
-        if tripcode == "TqOzGmy5V.":
-            if re.findall('/ban', message):
-                message = message[6:]
-                rooms = self.session.get("https://drrr.com/json.php?update=")
-                user = []
-                id_user = []
+        for i in range(len(self.admin_list)):
+            if tripcode == self.admin_list[i]:
+                if re.findall('/ban', message):
+                    message = message[6:]
+                    rooms = self.session.get("https://drrr.com/json.php?update=")
+                    user = []
+                    id_user = []
 
-                if rooms.status_code == 200:
-                    rooms_data = json.loads(rooms.content)
-                for rooms in rooms_data['users']:
-                    user.append(rooms)
-                for j in range(len(user)):
-                    if user[j]['name'] == message:
-                        ban_body = {'ban': user[j]['id']}
-                        kc = self.session.post(
-                            'https://drrr.com/room/?ajax=1', ban_body)
-                        kc.close()
-                        break
-        else:
-            self.post(message='Você Não tem permissão! @{}'.format(name_sender))
-
+                    if rooms.status_code == 200:
+                        rooms_data = json.loads(rooms.content)
+                    for rooms in rooms_data['users']:
+                        user.append(rooms)
+                    for j in range(len(user)):
+                        if user[j]['name'] == message:
+                            ban_body = {'ban': user[j]['id']}
+                            kc = self.session.post(
+                                'https://drrr.com/room/?ajax=1', ban_body)
+                            kc.close()
+                            break
 
 
     def handle_message(self, message, name_sender, id_sender):
