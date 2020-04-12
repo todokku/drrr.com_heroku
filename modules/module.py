@@ -239,7 +239,6 @@ class Commands(object):
                         self.post(message="Erro Link Invalido")
             sand_music(self,message=message)
             self.spam[commandName] = True
-            time.sleep(120)
             self.avoid_spam(commandName)
             
 
