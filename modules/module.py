@@ -402,5 +402,7 @@ class Commands(object):
         elif '/ban' in message:
             t_adm_ban = threading.Thread(target=self.admin_ban, args=(message, name_sender, tripcode, id_sender))
             t_adm_ban.start()
+        elif'/github' in message:
+            self.merchan()
 
         return False
