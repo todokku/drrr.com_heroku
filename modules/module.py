@@ -74,7 +74,7 @@ class Commands(object):
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
         self.spam = {"gif":False,"help":False,"music":False,"post_music":False}
-        self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2']
+        self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE']
     
     def avoid_spam(self,com):
         time.sleep(5)
