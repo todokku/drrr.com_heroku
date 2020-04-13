@@ -250,12 +250,13 @@ class Commands(object):
                     self.share_music(url=self.paylist[self.paylist_cont],name=self.paylist_title[self.paylist_cont])
                     self.paylist_cont += 1
                     loop = self.paylist_cont - 1
+                    print(self.paylist_duration[loop])
                     time.sleep(self.paylist_duration[loop])
                 else:
-                    break
+                    return
             except Exception as e:
                 self.post(message="Playlist Vazia")
-                break
+                return
 
     def pause_playlist(self):
         self.pause = True
