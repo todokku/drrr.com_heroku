@@ -73,9 +73,10 @@ class Commands(object):
         self.session = requests.session()
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
-        self.spam = {"gif":False,"help":False,"music":False,"post_music":False}
+        self.spam = {"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.title = ''
+        self.host = 'https://drrr.com/room/?ajax=1'
     
     def avoid_spam(self,com):
         time.sleep(5)
@@ -86,25 +87,45 @@ class Commands(object):
         self.session.cookies.update(eval(f.read()))
         f.close()
 
+    def setRomm_Description(self,message,tripcode):
+        for i in range(len(self.admin_list)):
+            if tripcode == self.admin_list[i]:
+                message = message[11:]
+                room_description_body = {
+                    'room_description': 'night {}'.format(message)
+                }
+                rd = self.session.post(self.host, room_description_body)
+                rd.close()
+
+    def setRomm_name(self,message,tripcode):
+        for i in range(len(self.admin_list)):
+            if tripcode == self.admin_list[i]:
+                message = message[11:]
+                room_name_body = {
+                    'room_name': message
+                }
+                rn = self.session.post(self.host, room_name_body)
+                rn.close()
+
     def leave_room(self):
         leave_body = {
             'leave': 'leave'
         }
-        lr = self.session.post('https://drrr.com/room/?ajax=1', leave_body)
+        lr = self.session.post(self.host, leave_body)
         lr.close()
 
     def kick_room(self):
         kick_body = {
             'kick': 'kick'
         }
-        kc = self.session.post('https://drrr.com/room/?ajax=1', kick_body)
+        kc = self.session.post(self.host, kick_body)
         kc.close()
 
     def new_host(self, new_host_id):
         new_host_body = {
             'new_host': new_host_id
         }
-        nh = self.session.post('https://drrr.com/room/?ajax=1', new_host_body)
+        nh = self.session.post(self.host, new_host_body)
         nh.close()
 
     def post(self, message, url='', to=''):
@@ -114,7 +135,7 @@ class Commands(object):
             'to': to
         }
         p = self.session.post(
-            url='https://drrr.com/room/?ajax=1', data=post_body)
+            url=self.host, data=post_body)
         p.close()
 
     def share_music(self, url, name=''):
@@ -124,7 +145,7 @@ class Commands(object):
             'url': url
         }
         p = self.session.post(
-            url='https://drrr.com/room/?ajax=1', data=share_music_body)
+            url=self.host, data=share_music_body)
         p.close()
 
     def room_enter(self, url_room):
@@ -149,8 +170,11 @@ class Commands(object):
                 for tu in talks_update:
                     info_sender = re.findall('"from":{.*?}', tu)
                     info_sender = info_sender[0]
-                    tripcode = re.findall(
-                        '"tripcode":".*?"', info_sender)[0][12:-1]
+                    try:
+                        tripcode = re.findall(
+                            '"tripcode":".*?"', info_sender)[0][12:-1]
+                    except Exception:
+                        tripcode = None
                     name_sender = re.findall(
                         '"name":".*?"', info_sender)[0][8:-1]
                     message = re.search('"message":".*?"', tu).group(0)[11:-1].encode(encoding='utf-8').decode(
@@ -163,8 +187,10 @@ class Commands(object):
                             info_sender = info_sender[0]
                             name_sender = re.findall(
                                 '"name":".*?"', info_sender)[0][8:-1]
-                            tripcode = re.findall(
-                                '"tripcode":".*?"', info_sender)[0][12:-1]
+                            try:
+                                tripcode = re.findall('"tripcode":".*?"', info_sender)[0][12:-1]
+                            except Exception:
+                                tripcode = None
                             # condição para o bot nao ficar auto se respondendo suas requisições
                             if name_sender == u'Athus':
                                 continue
@@ -192,8 +218,22 @@ class Commands(object):
 
     def help(self, message, name_sender):
         commandName = 'help'
-        if self.spam["help"] == False:
-            self.post(message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music| \n |==ADMIN==| \n |/kick name|\n |/ban name|")
+        if self.spam[commandName] == False:
+            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/m music(ID)|\n |/post_music|\n |/admin|\n |/adm_list|")
+            self.spam[commandName] = True
+            self.avoid_spam(commandName)
+
+    def admin(self, message, name_sender):
+        commandName = 'admin'
+        if self.spam[commandName] == False:
+            self.post(message="|==ADMIN==| \n |/kick name|\n |/ban name|\n |/room_name Name_room|\n |/room_info Description|")
+            self.spam[commandName] = True
+            self.avoid_spam(commandName)
+
+    def listAdmin(self, message, name_sender):
+        commandName = 'admin_list'
+        if self.spam[commandName] == False:
+            self.post(message="|==ADMIN's==| \n |@londarks|\n |@alim|\n |@NICK!|\n |@jenni|\n |@NEKO|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
@@ -289,7 +329,7 @@ class Commands(object):
         new_host_body = {
             'new_host': new_host_id
         }
-        nh = self.session.post('https://drrr.com/room/?ajax=1', new_host_body)
+        nh = self.session.post(self.host, new_host_body)
         nh.close()
         return True
 
@@ -341,7 +381,7 @@ class Commands(object):
                         if user[j]['name'] == message:
                             kick_body = {'kick': user[j]['id']}
                             kc = self.session.post(
-                                'https://drrr.com/room/?ajax=1', kick_body)
+                                self.host, kick_body)
                             kc.close()
                             break
 
@@ -363,7 +403,7 @@ class Commands(object):
                         if user[j]['name'] == message:
                             ban_body = {'ban': user[j]['id']}
                             kc = self.session.post(
-                                'https://drrr.com/room/?ajax=1', ban_body)
+                                self.host, ban_body)
                             kc.close()
                             break
 
@@ -373,6 +413,14 @@ class Commands(object):
             t_help = threading.Thread(
                 target=self.help, args=(message, name_sender))
             t_help.start()
+        elif '/admin' in message:
+            t_admin = threading.Thread(
+                target=self.admin, args=(message, name_sender))
+            t_admin.start()
+        elif '/adm_list' in message:
+            t_listAdmin = threading.Thread(
+                target=self.listAdmin, args=(message, name_sender))
+            t_listAdmin.start()
         elif '/gif' in message:
             t_ghipy = threading.Thread(
                 target=self.ghipy, args=(message, name_sender, id_sender))
@@ -386,7 +434,6 @@ class Commands(object):
             t_music_help = threading.Thread(
                 target=self.music_help, args=(message, name_sender))
             t_music_help.start()
-        
 
 
     def handle_private_message(self, message, id_sender, name_sender, tripcode):
@@ -411,5 +458,10 @@ class Commands(object):
             t_adm_ban.start()
         elif'/github' in message:
             self.merchan()
-
+        elif'/room_name' in message:
+            t_adm_name = threading.Thread(target=self.setRomm_name, args=(message, tripcode))
+            t_adm_name.start()
+        elif'/room_info' in message:
+            t_adm_description = threading.Thread(target=self.setRomm_Description, args=(message, tripcode))
+            t_adm_description.start()
         return False
