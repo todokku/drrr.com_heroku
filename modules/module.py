@@ -3,7 +3,7 @@ import time
 import json
 import re
 import os
-import random
+from random import randint 
 import threading
 import giphy_client
 from giphy_client.rest import ApiException
@@ -203,13 +203,13 @@ class Commands(object):
             "catbox": CatboxUploader,
             "fileio": FileioUploader}
 
-            def upload(self, host, name):
+            def upload(self,title ,host, name):
                 uploader_class = uploader_classes[host]
                 uploader_instance = uploader_class(name)
                 print(name)
                 result = uploader_instance.execute()
                 print("Your link : {}".format(result))
-                self.share_music(url=result,name='Song')
+                self.share_music(url=result,name=title)
                 os.remove("./cache/music_1.mp3")
 
             def sand_music(self, message):
@@ -232,9 +232,10 @@ class Commands(object):
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
+                            info_title = ydl.extract_info(filenames)
                             ydl.download(filenames)
                         prefixo ='.mp3'
-                        upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                        upload(self, title={}, host = 'catbox', name = '{}{}'.format(info_title['title'],title, prefixo))
                     except Exception:
                         self.post(message="Erro Link Invalido")
             sand_music(self,message=message)
@@ -242,20 +243,27 @@ class Commands(object):
             self.avoid_spam(commandName)
             
 
-
     def ghipy(self, message, name_sender, id_sender):
         commandName = 'gif'
         if self.spam[commandName] == False:
             message = message[5:]
-            api_instance = giphy_client.DefaultApi()
-            api_key = 'oe533d6kfwvoxrJgC6fDSi6WcSnqyEPb'
-            tag = message  # str | Filters results by specified tag. (optional)
-            rating = 'g'
-            fmt = 'json'
-            api_response = api_instance.gifs_random_get(
-                api_key, tag=tag, rating=rating, fmt=fmt)
+
+            apikey = "LIVDSRZULELA"  # test value
+            lmt = 8
+            list_gif = []
+            # our test search
+            search_term = message
+
+            r = requests.get(
+                "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % (search_term, apikey, lmt))
+            if r.status_code == 200:
+                top_8gifs = json.loads(r.content)
+                maximo = len(top_8gifs['results']) -1
+                x = randint(0,maximo)
+                list_gif.append(top_8gifs['results'][x])
+                url = list_gif[0]['url']
             self.post(message='{}-@{}'.format(message, name_sender),
-    	                 url='%s' % (api_response.data.image_url))
+    	                 url='%s' % (url))
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
