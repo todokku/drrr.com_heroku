@@ -73,7 +73,7 @@ class Commands(object):
         self.session = requests.session()
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
-        self.spam = {"pause":False,"anonymou":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
+        self.spam = {"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.music_info = ''
         self.host = 'https://drrr.com/room/?ajax=1'
@@ -322,8 +322,8 @@ class Commands(object):
 
 
 
-    def anonymou(self, message, name_sender, id_sender):
-        commandName = 'anonymou'
+    def playlist_anonimo(self, message, name_sender, id_sender):
+        commandName = 'music'
         if self.spam[commandName] == False:
             uploader_classes = {
             "catbox": CatboxUploader,
@@ -338,7 +338,7 @@ class Commands(object):
                 #self.share_music(url=result,name=self.music_info['title'])
                 self.paylist.append(result)
                 self.paylist_duration.append(self.music_info['duration'])
-                self.paylist_title.append('NONE')
+                self.paylist_title.append(self.music_info['title'])
                 os.remove("./cache/music_1.mp3")
 
             def sand_music(self, message):
@@ -357,6 +357,7 @@ class Commands(object):
                                        'preferredquality': '192',
                           }],
                         }
+                        self.post(message="▷Colocando na Playlist...▷")
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
@@ -366,7 +367,6 @@ class Commands(object):
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
-                        self.post(message="▷Colocada na Playlist...▷")
                     except Exception:
                         self.post(message="Erro Link Invalido")
                         self.avoid_spam(commandName)
@@ -542,8 +542,9 @@ class Commands(object):
             t_mensagemprivate = threading.Thread(target=self.mensagemprivate, args=(message, name_sender, id_sender))
             t_mensagemprivate.start()
         elif '/add' in message:
-            t_anonymou = threading.Thread(target=self.anonymou, args=(message, name_sender,id_sender))
-            t_anonymou.start()
+            t_music = threading.Thread(
+                target=self.playlist_anonimo, args=(message, name_sender,id_sender))
+            t_music.start()
         elif '/groom' in message:
             self.groom(new_host_id=id_sender)
         elif '/time_up' in message:
