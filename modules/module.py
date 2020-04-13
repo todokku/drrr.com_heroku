@@ -203,13 +203,13 @@ class Commands(object):
             "catbox": CatboxUploader,
             "fileio": FileioUploader}
 
-            def upload(self,title ,host, name):
+            def upload(self, host, name):
                 uploader_class = uploader_classes[host]
                 uploader_instance = uploader_class(name)
                 print(name)
                 result = uploader_instance.execute()
                 print("Your link : {}".format(result))
-                self.share_music(url=result,name=title)
+                self.share_music(url=result,name='Song')
                 os.remove("./cache/music_1.mp3")
 
             def sand_music(self, message):
@@ -232,10 +232,9 @@ class Commands(object):
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
-                            info_title = ydl.extract_info(filenames)
                             ydl.download(filenames)
                         prefixo ='.mp3'
-                        upload(self, title={}, host = 'catbox', name = '{}{}'.format(info_title['title'],title, prefixo))
+                        upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                     except Exception:
                         self.post(message="Erro Link Invalido")
             sand_music(self,message=message)
