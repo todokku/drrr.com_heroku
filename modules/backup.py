@@ -3,18 +3,17 @@ import time
 import json
 import re
 import os
-import random
-from random import randint
+from random import randint 
 import threading
 import giphy_client
 from giphy_client.rest import ApiException
-from jikanpy import Jikan
 import sqlite3
 import youtube_dl
 import sys
 import mimetypes
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 import click
+import datetime
 
 global ts_last_greeting
 ts_last_greeting = 0
@@ -69,39 +68,17 @@ class CatboxUploader(Uploader):
         return response.text
 
 
-
-
-# uploader_classes = {
-#     "catbox": CatboxUploader,
-#     "fileio": FileioUploader
-# }
-
-
-
-
-# def upload(host, name):
-#     uploader_class = uploader_classes[host]
-#     uploader_instance = uploader_class(name)
-#     print(name)
-#     result = uploader_instance.execute()
-#     print("Your link : {}".format(result))
-#     return result
-
-
 class Commands(object):
     def __init__(self):
         self.session = requests.session()
-
-        """
-        Modulos de conexão com o servidor Drrr.com
-        :load_cookie =  faz login no site utilizando o cookie salvo
-        :leave_room = espesifica a função para o Bot sair da sala
-        :kick_room = espesifica a função do Bot kikar alguém da sala
-        :new_host = Essa função server para o Bot dar "Admin"/host para
-        outra pessoa dentro da sala
-        :post = função declada para poder mandar menssagem
-        :share_music = função declada para poder mandar audio/musica
-        """
+        self.start_time = ''
+        self.start_time = datetime.datetime.utcnow()
+        self.spam = {"gif":False,"help":False,"music":False,"post_music":False}
+        self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE']
+    
+    def avoid_spam(self,com):
+        time.sleep(5)
+        self.spam[com] = False
 
     def load_cookie(self, file_name):
         f = open(file_name, 'r')
@@ -155,15 +132,6 @@ class Commands(object):
         room = self.session.get('https://drrr.com/json.php?fast=1')
         return room.text
 
-    """
-    room_update: Atualiza a Sala a cada 1 segundo  procurando novas menssagens
-    e assim sabendo de algum usuario digitou alguém comando,
-    alem de ser nessa mesma função onde o bot captura 
-    info_sender = Informação do autor (tripcode, id e outras coisas)
-    name_sender = Autor da menssagem
-    message = Menssagem enviada
-    """
-
     def room_update(self, room_text):
         update = re.search('"update":\d+.\d+', room_text).group(0)[9:]
         url_room_update = 'https://drrr.com/json.php?update=' + update
@@ -172,19 +140,6 @@ class Commands(object):
             ru = self.session.get(url_room_update)
             update = re.search('"update":\d+.\d+', ru.text).group(0)[9:]
             url_room_update = 'https://drrr.com/json.php?update=' + update
-            """
-            Quando alguem entra ou sai da sala ele solta uma preve frase
-            "type":"join" referece a qunado alguem entra na sala o mesmo se aplica a
-                                   "type":"leave" 
-                todos esses dados são pegos na propria api do site
-                        https://drrr.com/room/?ajax=1
-            """
-            if '"type":"join"' in ru.text:
-                self.post('/me Bem-Vindo')
-            ru.close()
-            if '"type":"leave"' in ru.text:
-                self.post('/me Vai tarde.!')
-            ru.close()
 
             if 'talks' in ru.text:
                 talks_update = re.findall(
@@ -193,8 +148,8 @@ class Commands(object):
                 for tu in talks_update:
                     info_sender = re.findall('"from":{.*?}', tu)
                     info_sender = info_sender[0]
-                    # tripcode = re.findall(
-                    #     '"tripcode":".*?"', info_sender)[0][12:-1]
+                    tripcode = re.findall(
+                        '"tripcode":".*?"', info_sender)[0][12:-1]
                     name_sender = re.findall(
                         '"name":".*?"', info_sender)[0][8:-1]
                     message = re.search('"message":".*?"', tu).group(0)[11:-1].encode(encoding='utf-8').decode(
@@ -207,10 +162,10 @@ class Commands(object):
                             info_sender = info_sender[0]
                             name_sender = re.findall(
                                 '"name":".*?"', info_sender)[0][8:-1]
-                            # tripcode = re.findall(
-                            #     '"tripcode":".*?"', info_sender)[0][12:-1]
+                            tripcode = re.findall(
+                                '"tripcode":".*?"', info_sender)[0][12:-1]
                             # condição para o bot nao ficar auto se respondendo suas requisições
-                            if name_sender == 'Athus':
+                            if name_sender == u'Athus':
                                 continue
                             id_sender = re.findall(
                                 '"id":".*?"', info_sender)[0][6:-1]
@@ -219,7 +174,7 @@ class Commands(object):
                             # condição no main para verificar se o bot esta fora da sala/banido de alguma sala
                             if info_receiver:
                                 is_leave = self.handle_private_message(message=message, id_sender=id_sender,
-                                                                       name_sender=name_sender)
+                                                                       name_sender=name_sender,tripcode=tripcode)
                                 if is_leave:
                                     return True
                             else:
@@ -229,336 +184,185 @@ class Commands(object):
 
 # comandos do bot
 
+    def merchan(self):
+        mercham = "https://github.com/londarks"
+        self.post(message="Olá Meu nome e Athus e eu fui Criado por Londarks\n Caso queira saber como fui feito segue o link abaixo", url='{}'.format
+                  (mercham))  # de
+
     def help(self, message, name_sender):
-        self.post(
-            message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music|\n |/dado|")
+        commandName = 'help'
+        if self.spam["help"] == False:
+            self.post(message="|/help|\n |/gif <name_gif>|\n |/m <Id_music_yt>|\n |/post_music| \n |==ADMIN==| \n |/kick name|\n |/ban name|")
+            self.spam[commandName] = True
+            self.avoid_spam(commandName)
 
-    def music(self, message, name_sender, to=''):
-        uploader_classes = {
-        "catbox": CatboxUploader,
-        "fileio": FileioUploader}
+    def music(self, message, name_sender, id_sender):
+        commandName = 'music'
+        if self.spam[commandName] == False:
+            uploader_classes = {
+            "catbox": CatboxUploader,
+            "fileio": FileioUploader}
 
-        def upload(self, host, name):
-            uploader_class = uploader_classes[host]
-            uploader_instance = uploader_class(name)
-            print(name)
-            result = uploader_instance.execute()
-            print("Your link : {}".format(result))
-            self.share_music(url=result,name='Song')
-            os.remove("./cache/music_1.mp3")
+            def upload(self, host, name):
+                uploader_class = uploader_classes[host]
+                uploader_instance = uploader_class(name)
+                print(name)
+                result = uploader_instance.execute()
+                print("Your link : {}".format(result))
+                self.share_music(url=result,name='Song')
+                os.remove("./cache/music_1.mp3")
 
-        def sand_music(self, message):
-            if re.findall('/m', message):
-                message = message[4:]
-                print(message)
-                title = 'music_1'
-                extp = '.webm'
-                ydl_opts = {
-                           'format': 'bestaudio/best',
-                           'outtmpl': './cache/{}{}'.format(title,extp),
-                           'postprocessors': [{
-                               'key': 'FFmpegExtractAudio',
-                               'preferredcodec': 'mp3',
-                               'preferredquality': '192',
-                  }],
-                }
-                self.post(message="Carregando...")
-                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                    link = "https://www.youtube.com/watch?v={}".format(message)
-                    filenames = ([link])
-                    ydl.download(filenames)
-                prefixo ='.mp3'
-                upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
-        sand_music(self,message=message)
+            def sand_music(self, message):
+                if re.findall('/m', message):
+                    try:
+                        message = message[4:]
+                        print(message)
+                        title = 'music_1'
+                        extp = '.webm'
+                        ydl_opts = {
+                                   'format': 'bestaudio/best',
+                                   'outtmpl': './cache/{}{}'.format(title,extp),
+                                   'postprocessors': [{
+                                       'key': 'FFmpegExtractAudio',
+                                       'preferredcodec': 'mp3',
+                                       'preferredquality': '192',
+                          }],
+                        }
+                        self.post(message="▷Carregando▷")
+                        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                            link = "https://www.youtube.com/watch?v={}".format(message)
+                            filenames = ([link])
+                            ydl.download(filenames)
+                        prefixo ='.mp3'
+                        upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                    except Exception:
+                        self.post(message="Erro Link Invalido")
+            sand_music(self,message=message)
+            self.spam[commandName] = True
+            self.avoid_spam(commandName)
             
-            #self.post(message="link:{}".format(upload(result)))
 
-            #upload(host = 'catbox', name = '{}{}'.format(filenames, prefixo))
-            #self.post(message="link:{}".format(result))
-
-    # def music(self, message, name_sender, to=''):
-    #     try:
-    #         if re.findall('/m', message):
-    #             message = message[4:]
-    #             # print(message)
-    #             link = "https://www.youtube.com/watch?v={}".format(message)
-    #             url = "http://michaelbelgium.me/ytconverter/convert.php?youtubelink={}".format(
-    #                 link)
-    #             open_bbc_page = requests.get(url).json()
-    #             # print(url)
-    #             # time.sleep(1)
-    #             # % (open_bbc_page['file'],open_bbc_page['title']))
-    #             self.share_music(
-    #                 url=open_bbc_page['file'], name=open_bbc_page['title'])
-    #     except KeyError:
-    #         self.post(message="Servidor Offline")
-
-    def top_animes(self, message, name_sender):
-        jikan = Jikan()
-        anime_name = []
-        top_anime = jikan.top(type='anime')
-        for episode in top_anime['top']:
-            anime_name.append([episode['title']])
-        self.post(message="Top_5 animes \n 1°{}\n2°{}\n3°{}\n4°{}\n5°{}.".format(
-            anime_name[0], anime_name[1], anime_name[2], anime_name[3], anime_name[4]))
-
-    def ghipy(self, message, name_sender, to=''):
-        if re.findall('/gif .*', message):
+    def ghipy(self, message, name_sender, id_sender):
+        commandName = 'gif'
+        if self.spam[commandName] == False:
             message = message[5:]
-            api_instance = giphy_client.DefaultApi()
-            # str | Giphy API Key.
-            api_key = 'oe533d6kfwvoxrJgC6fDSi6WcSnqyEPb'
-            tag = message  # str | Filters results by specified tag. (optional)
-            # str | Filters results by specified rating. (optional)
-            rating = 'g'
-            # str | Used to indicate the expected response format. Default is Json. (optional) (default to json)
-            fmt = 'json'
 
-            api_response = api_instance.gifs_random_get(
-                api_key, tag=tag, rating=rating, fmt=fmt)
+            apikey = "LIVDSRZULELA"  # test value
+            lmt = 8
+            list_gif = []
+            # our test search
+            search_term = message
+
+            r = requests.get(
+                "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % (search_term, apikey, lmt))
+            if r.status_code == 200:
+                top_8gifs = json.loads(r.content)
+                maximo = len(top_8gifs['results']) -1
+                x = randint(0,maximo)
+                list_gif.append(top_8gifs['results'][x])
+                url = list_gif[0]['url']
             self.post(message='{}-@{}'.format(message, name_sender),
-                      url='%s' % (api_response.data.image_url))
+    	                 url='%s' % (url))
+            self.spam[commandName] = True
+            self.avoid_spam(commandName)
 
     def music_help(self, message, name_sender):
-        ajuda_musica = "https://i.imgur.com/qDe9YpO.png"
-        self.post(message="Como usar musica.", url='{}'.format
-                  (ajuda_musica))  # deixa a sala
-
-    """
-
-    Sistema arcaico de RPG
-
-    """
-
-    def dado(self, message, name_sender, to=''):
-        list_dados = ['1', '2', '3', '4', '5', '6', ]
-        list_dados2 = ['1', '2', '3', '4', '5', '6', ]
-        list_dados3 = ['1', '2', '3', '4', '5', '6', ]
-        list_dados4 = ['1', '2', '3', '4', '5', '6', ]
-        list_dados = random.choice(list_dados)
-        list_dados2 = random.choice(list_dados2)
-        list_dados3 = random.choice(list_dados3)
-        list_dados4 = random.choice(list_dados4)
-        time.sleep(2)
-        self.post(message='Irei girar o dado @{}, se sair com um trio de: {} você ganha. Caiu em: {}-{}-{}'.format
-                  (name_sender, list_dados, list_dados2, list_dados3, list_dados4))
-
-        # if list_dados2 == list_dados3 and list_dados4:
-        #     conn = sqlite3.connect('RPG/Rank.db')
-        #     cursor = conn.cursor()
-        #     user_name = "{}".format(name_sender)
-        #     id_user = "{}".format(tripcode)
-        #     sequencia = "{},{},{}".format(
-        #         list_dados2, list_dados3, list_dados4)
-        #     conn.close()
-
-    def register(self, message, name_sender, id_sender):
-        usr_ATK = 5
-        usr_DEF = 8
-        usr_LIFE = 100
-        conn = sqlite3.connect('RPG/rpg.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO players (name,id_chat,ATK,DEF,LIFE) VALUES (?,?,?,?,?)", (name_sender,id_sender,usr_ATK,usr_DEF,usr_LIFE))
-        conn.commit()
-        conn.close()
-        self.post(message='Registrador')
-
-    def info(self, message, name_sender, id_sender):
-        conn = sqlite3.connect('RPG/rpg.db')
-        cursor = conn.cursor()
-        login = cursor.execute('SELECT name,ATK,DEF,LIFE From players WHERE id_chat="%s"' % (id_sender))
-        conn.commit()
-        conn.close()
-        self.post(message='seu id:{}'.format(id_sender))
-
-
-    def login_messagem(self, to=''):
-        self.post(message='fala meu bacano',to=to)
-    
-    # def rank(self, message, name_sender):
-    #     conn = sqlite3.connect('RPG/Rank.db')
-    #     cursor = conn.cursor()
-    #     consulta = cursor.execute('SELECT name,tipcode,sequencia From rank')
-    #     db_consulta = []
-    #     rows = cursor.fetchone()
-    #     for row in rows:
-    #         db_consulta.append(row)
-    #     self.post(message='Rank:\n|1º{} -- {}|\n|2º -- |\n|3º -- |\n|4º -- |\n|5º -- |'.format(
-    #         db_consulta[0], db_consulta[2]))
-
-
+        commandName = 'post_music'
+        if self.spam[commandName] == False:
+            ajuda_musica = "https://i.imgur.com/qDe9YpO.png"
+            self.post(message="Como usar musica.", url='{}'.format(ajuda_musica))  # deixa a sala
+            self.spam[commandName] = True
+            time.sleep(120)
+            self.avoid_spam(commandName)
 
     def mensagemprivate(self, message, name_sender, to=''):
-        if re.findall('/sms .*', message):
+        if re.findall('/say .*', message):
            message = message[5:] #conta 5 carateres e depois imprime aquilo escrito
            self.post(message='%s' % (message)) #imprime a menssagem dita
 
-    def qresp(self, frase_secreta,message=''):
-        digitadas = []
-        acertos = []
-        erros = 0
-        while True:
-            senha = ""
-            for letra in frase_secreta:
-                senha += letra if letra in acertos else "."
-            print(senha)
-            if senha == frase_secreta:
-               self.post(message='Você acertou!')
-                #print("Você acertou!")
-               break
-            tentativa=message
-            #tentativa = input("\nDigite uma letra:").lower().strip()
-            if tentativa in digitadas:
-               self.post(message="Você já tentou esta letra!")
-               continue
+
+
+    def groom(self,new_host_id):
+        new_host_body = {
+            'new_host': new_host_id
+        }
+        nh = self.session.post('https://drrr.com/room/?ajax=1', new_host_body)
+        nh.close()
+        return True
+
+    def loop_msg(self):
+        while 1:
+            time.sleep(600)
+            print("loop pegando")
+            now = datetime.datetime.utcnow() # Timestamp of when uptime function is run
+            delta = now - self.start_time
+            hours, remainder = divmod(int(delta.total_seconds()), 3600)
+            minutes, seconds = divmod(remainder, 60)
+            days, hours = divmod(hours, 24)
+            if days:
+                time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
             else:
-               digitadas += tentativa
-               if tentativa in frase_secreta:
-                     acertos += tentativa
-               else:
-                     erros += 1
-                     self.post(message='Você errou!')
-            if erros == 2:
-                self.post(message='Você errou!')
-            elif erros == 3:
-                self.post(message='Você errou!')
-            elif erros >= 4:
-               self.post(message='Você errou!')
-            if erros == 5:
-                self.post(message='Você errou!')
-            elif erros >= 6:
-                self.post(message='Você errou!')
-            if erros == 6:
-                self.post(message="Enforcado!")
-                break
+                time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+            uptime_stamp = time_format.format(d=days, h=hours, m=minutes, s=seconds)
+            self.post(message='/me Time Online:{}'.format(uptime_stamp))
 
-    def forca(self, message, name_sender):
-        game = open('games_lista.json', 'r')
-        start = json.load(game)
-        frase_index = randint(1,5)
-        game_frase = 'game_'+ (str)(frase_index)
-        frase_secreta = start['games_list'][game_frase]['nome'].lower().strip()
-        dica_secreta = start['games_list'][game_frase]['dica_1'].lower().strip()#dica_1
-        self.post(message='Dica: '+ dica_secreta)
-        print("A frase secreta é: " + frase_secreta)
-        self.qresp(frase_secreta=frase_secreta)
+    def Online(self):
+        now = datetime.datetime.utcnow() # Timestamp of when uptime function is run
+        delta = now - self.start_time
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+        if days:
+            time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+        else:
+            time_format = "{d}days,{h}hours,{m}minutes,{s}seconds."
+        uptime_stamp = time_format.format(d=days, h=hours, m=minutes, s=seconds)
+        self.post(message='/me Online:{}'.format(uptime_stamp))
 
 
+    def admin_kick(self, message, name_sender, tripcode, id_sender):
+        for i in range(len(self.admin_list)):
+            if tripcode == self.admin_list[i]:
+                if re.findall('/kick', message):
+                    message = message[7:]
+
+                    rooms = self.session.get("https://drrr.com/json.php?update=")
+                    user = []
+                    id_user = []
+
+                    if rooms.status_code == 200:
+                        rooms_data = json.loads(rooms.content)
+                    for rooms in rooms_data['users']:
+                        user.append(rooms)
+                    for j in range(len(user)):
+                        if user[j]['name'] == message:
+                            kick_body = {'kick': user[j]['id']}
+                            kc = self.session.post(
+                                'https://drrr.com/room/?ajax=1', kick_body)
+                            kc.close()
+                            break
 
 
+    def admin_ban(self, message, name_sender, tripcode, id_sender):
+        for i in range(len(self.admin_list)):
+            if tripcode == self.admin_list[i]:
+                if re.findall('/ban', message):
+                    message = message[6:]
+                    rooms = self.session.get("https://drrr.com/json.php?update=")
+                    user = []
+                    id_user = []
 
-    """
-    ===============================
-    Comandos Para administradores
-    /kick == kika o usuario
-    /ban == bane o usaurio
-    /unban == desbane o usuario
-    ===============================
-    """
-
-    # def admin_host(self, message, name_sender, tripcode, id_sender):
-    #     # print(tripcode)
-    #     # print(id_sender)
-    #     # print(message)
-    #     if tripcode == "Bb8\/DUMRJU":
-    #         new_host_body = {'new_host': id_sender}
-    #         nh = self.session.post(
-    #             'https://drrr.com/room/?ajax=1', new_host_body)
-    #         nh.close()
-    #         return True
-    #     elif tripcode != "Bb8\/DUMRJU":
-    #         self.post(message='Você Não tem permissão! @{}'.format(name_sender))
-    #     elif tripcode == None:
-    #         self.post(message='Você Não tem permissão! @{}'.format(name_sender))
-
-    # def admin_kick(self, message, name_sender, tripcode, id_sender):
-    #     if tripcode == "Bb8\/DUMRJU":
-    #         if re.findall('/kick', message):
-    #             message = message[8:]
-
-    #             rooms = self.session.get("https://drrr.com/json.php?update=")
-    #             user = []
-    #             id_user = []
-
-    #             if rooms.status_code == 200:
-    #                 rooms_data = json.loads(rooms.content)
-    #             for rooms in rooms_data['users']:
-    #                 user.append(rooms)
-    #             # print('lendo')
-    #             # print(f'messagem:{message}')
-    #             # print(f'messagem:{user}')
-    #             for j in range(len(user)):
-    #                 # print(user[j]['name'])
-    #                 if user[j]['name'] == message:
-    #                     # print(user[j]['id'])
-    #                     # print(message)
-    #                     kick_body = {'kick': user[j]['id']}
-    #                     kc = self.session.post(
-    #                         'https://drrr.com/room/?ajax=1', kick_body)
-    #                     kc.close()
-    #                     break
-    #     else:
-    #         self.post(message='Você Não tem permissão! @{}'.format(name_sender))
-
-
-    # def admin_ban(self, message, name_sender, tripcode, id_sender):
-    #     if tripcode == "Bb8\/DUMRJU":
-    #         if re.findall('/ban', message):
-    #             message = message[7:]
-    #             rooms = self.session.get("https://drrr.com/json.php?update=")
-    #             user = []
-    #             id_user = []
-
-    #             if rooms.status_code == 200:
-    #                 rooms_data = json.loads(rooms.content)
-    #             for rooms in rooms_data['users']:
-    #                 user.append(rooms)
-    #             # print('lendo')
-    #             # print(f'messagem:{message}')
-    #             # print(f'messagem:{user}')
-    #             for j in range(len(user)):
-    #                 # print(user[j]['name'])
-    #                 if user[j]['name'] == message:
-    #                     # print(user[j]['id'])
-    #                     # print(message)
-    #                     ban_body = {'ban': user[j]['id']}
-    #                     kc = self.session.post(
-    #                         'https://drrr.com/room/?ajax=1', ban_body)
-    #                     kc.close()
-    #                     break
-    #     else:
-    #         self.post(message='Você Não tem permissão! @{}'.format(name_sender))
-
-    # def admin_unban(self, message, name_sender, tripcode, id_sender):
-    #     if tripcode == "Bb8\/DUMRJU":
-    #         if re.findall('/unban', message):
-    #             message = message[8:]
-    #             rooms = self.session.get("https://drrr.com/json.php?update=")
-    #             user = []
-    #             id_user = []
-
-    #             if rooms.status_code == 200:
-    #                 rooms_data = json.loads(rooms.content)
-    #             for rooms in rooms_data['users']:
-    #                 user.append(rooms)
-    #             # print('lendo')
-    #             # print(f'messagem:{message}')
-    #             # print(f'messagem:{user}')
-    #             for j in range(len(user)):
-    #                 # print(user[j]['name'])
-    #                 if user[j]['name'] == message:
-    #                     # print(user[j]['id'])
-    #                     # print(message)
-    #                     unban_body = {'unban': user[j]['id']}
-    #                     kc = self.session.post(
-    #                         'https://drrr.com/room/?ajax=1', unban_body)
-    #                     kc.close()
-    #                     break 
-    #     else:
-    #         self.post(message='Você Não tem permissão! @{}'.format(name_sender))
-
-
-# checa o comando e execulta
+                    if rooms.status_code == 200:
+                        rooms_data = json.loads(rooms.content)
+                    for rooms in rooms_data['users']:
+                        user.append(rooms)
+                    for j in range(len(user)):
+                        if user[j]['name'] == message:
+                            ban_body = {'ban': user[j]['id']}
+                            kc = self.session.post(
+                                'https://drrr.com/room/?ajax=1', ban_body)
+                            kc.close()
+                            break
 
 
     def handle_message(self, message, name_sender, id_sender):
@@ -568,68 +372,41 @@ class Commands(object):
             t_help.start()
         elif '/gif' in message:
             t_ghipy = threading.Thread(
-                target=self.ghipy, args=(message, name_sender))
+                target=self.ghipy, args=(message, name_sender, id_sender))
             t_ghipy.start()
         elif '/m' in message:
             t_music = threading.Thread(
-                target=self.music, args=(message, name_sender))
+                target=self.music, args=(message, name_sender,id_sender))
             t_music.start()
-        elif '/top_animes' in message:
-            t_top_animes = threading.Thread(
-                target=self.top_animes, args=(message, name_sender))
-            t_top_animes.start()
+
         elif '/post_music' in message:
             t_music_help = threading.Thread(
                 target=self.music_help, args=(message, name_sender))
             t_music_help.start()
-        elif '/forca' in message:
-            t_forca = threading.Thread(
-                target=self.forca, args=(message, name_sender))
-            t_forca.start()
-        elif '/qr' in message:
-            t_qresp = threading.Thread(
-                target=self.qresp, args=(message, name_sender))
-            t_qresp.start()
-        # elif '/admin' in message:
-        #     t_host = threading.Thread(target=self.admin_host, args=(
-        #         message, name_sender, tripcode, id_sender))
-        #     t_host.start()
-        # elif '/kick' in message:
-        #     t_kick = threading.Thread(target=self.admin_kick, args=(
-        #         message, name_sender, tripcode, id_sender))
-        #     t_kick.start()
-        # elif '/ban' in message:
-        #     t_ban = threading.Thread(target=self.admin_ban, args=(
-        #         message, name_sender, tripcode, id_sender))
-        #     t_ban.start()
-        # elif '/unban' in message:
-        #     t_unban = threading.Thread(target=self.admin_unban, args=(
-        #         message, name_sender, tripcode, id_sender))
-        #     t_unban.start()
-        elif '/dado' in message:
-            t_dado = threading.Thread(
-                target=self.dado, args=(message, name_sender))
-            t_dado.start()
-        elif '/register' in message:
-            t_rank = threading.Thread(
-                target=self.register, args=(message, name_sender, id_sender))
-            t_rank.start()
-        elif '/info' in message:
-            t_info = threading.Thread(
-                target=self.info, args=(message, name_sender, id_sender))
-            t_info.start()
+        
 
 
-
-
-    def handle_private_message(self, message, id_sender, name_sender):
+    def handle_private_message(self, message, id_sender, name_sender, tripcode):
         if '/koi' in message:
             self.leave_room() # deixa a sala
             return True
-        elif '/sms' in message:
+        elif '/say' in message:
             t_mensagemprivate = threading.Thread(target=self.mensagemprivate, args=(message, name_sender, id_sender))
             t_mensagemprivate.start()
-        elif '/login' in message:
-            t_login_messagem = threading.Thread(target=self.login_messagem, args=(id_sender,))
-            t_login_messagem.start()
+        elif '/groom' in message:
+            self.groom(new_host_id=id_sender)
+        elif '/time_up' in message:
+        	self.Online()
+        elif '/kloop' in message:
+            t_loop = threading.Thread(target=self.loop_msg)
+            t_loop.start()
+        elif '/kick' in message:
+            t_adm_k = threading.Thread(target=self.admin_kick, args=(message, name_sender, tripcode, id_sender))
+            t_adm_k.start()
+        elif '/ban' in message:
+            t_adm_ban = threading.Thread(target=self.admin_ban, args=(message, name_sender, tripcode, id_sender))
+            t_adm_ban.start()
+        elif'/github' in message:
+            self.merchan()
+
         return False

@@ -3,7 +3,7 @@ import time
 import json
 import re
 import os
-from random import randint 
+import random
 import threading
 import giphy_client
 from giphy_client.rest import ApiException
@@ -242,27 +242,20 @@ class Commands(object):
             self.avoid_spam(commandName)
             
 
+
     def ghipy(self, message, name_sender, id_sender):
         commandName = 'gif'
         if self.spam[commandName] == False:
             message = message[5:]
-
-            apikey = "LIVDSRZULELA"  # test value
-            lmt = 8
-            list_gif = []
-            # our test search
-            search_term = message
-
-            r = requests.get(
-                "https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % (search_term, apikey, lmt))
-            if r.status_code == 200:
-                top_8gifs = json.loads(r.content)
-                maximo = len(top_8gifs['results']) -1
-                x = randint(0,maximo)
-                list_gif.append(top_8gifs['results'][x])
-                url = list_gif[0]['url']
+            api_instance = giphy_client.DefaultApi()
+            api_key = 'oe533d6kfwvoxrJgC6fDSi6WcSnqyEPb'
+            tag = message  # str | Filters results by specified tag. (optional)
+            rating = 'g'
+            fmt = 'json'
+            api_response = api_instance.gifs_random_get(
+                api_key, tag=tag, rating=rating, fmt=fmt)
             self.post(message='{}-@{}'.format(message, name_sender),
-    	                 url='%s' % (url))
+    	                 url='%s' % (api_response.data.image_url))
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
