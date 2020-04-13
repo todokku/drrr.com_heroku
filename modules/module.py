@@ -73,7 +73,7 @@ class Commands(object):
         self.session = requests.session()
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
-        self.spam = {"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
+        self.spam = {"pause":False,"anonymou":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.music_info = ''
         self.host = 'https://drrr.com/room/?ajax=1'
@@ -250,8 +250,10 @@ class Commands(object):
                     self.share_music(url=self.paylist[self.paylist_cont],name=self.paylist_title[self.paylist_cont])
                     self.paylist_cont += 1
                     loop = self.paylist_cont - 1
-                    print(self.paylist_duration[loop])
-                    time.sleep(self.paylist_duration[loop])
+                    for i in range(0,self.paylist_duration[loop]):
+                        if self.pause == True:
+                            return
+                        time.sleep(1)
                 else:
                     return
             except Exception as e:
@@ -259,8 +261,12 @@ class Commands(object):
                 return
 
     def pause_playlist(self):
+        commandName = 'pause'
+        self.spam[commandName] = True
         self.pause = True
         self.post(message="Playlist Pausada")
+        time.sleep(10)
+        self.avoid_spam(commandName)
 
 
     def playlist(self, message, name_sender, id_sender):
@@ -313,7 +319,60 @@ class Commands(object):
                         self.avoid_spam(commandName)
             self.spam[commandName] = True
             sand_music(self,message=message)
-            
+
+
+
+    def anonymou(self, message, name_sender, id_sender):
+        commandName = 'anonymou'
+        if self.spam[commandName] == False:
+            uploader_classes = {
+            "catbox": CatboxUploader,
+            "fileio": FileioUploader}
+
+            def upload(self, host, name):
+                uploader_class = uploader_classes[host]
+                uploader_instance = uploader_class(name)
+                print(name)
+                result = uploader_instance.execute()
+                print("Your link : {}".format(result))
+                #self.share_music(url=result,name=self.music_info['title'])
+                self.paylist.append(result)
+                self.paylist_duration.append(self.music_info['duration'])
+                self.paylist_title.append('NONE')
+                os.remove("./cache/music_1.mp3")
+
+            def sand_music(self, message):
+                if re.findall('/add', message):
+                    try:
+                        message = message[6:]
+                        print(message)
+                        title = 'music_1'
+                        extp = '.webm'
+                        ydl_opts = {
+                                   'format': 'bestaudio/best',
+                                   'outtmpl': './cache/{}{}'.format(title,extp),
+                                   'postprocessors': [{
+                                       'key': 'FFmpegExtractAudio',
+                                       'preferredcodec': 'mp3',
+                                       'preferredquality': '192',
+                          }],
+                        }
+                        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                            link = "https://www.youtube.com/watch?v={}".format(message)
+                            filenames = ([link])
+                            ydl.download(filenames)
+                            info = ydl.extract_info(link)
+                            self.music_info = info
+                        prefixo ='.mp3'
+                        upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                        self.avoid_spam(commandName)
+                        self.post(message="▷Colocada na Playlist...▷")
+                    except Exception:
+                        self.post(message="Erro Link Invalido")
+                        self.avoid_spam(commandName)
+            self.spam[commandName] = True
+            sand_music(self,message=message)
+
 
     def ghipy(self, message, name_sender, id_sender):
         commandName = 'gif'
@@ -482,6 +541,9 @@ class Commands(object):
         elif '/say' in message:
             t_mensagemprivate = threading.Thread(target=self.mensagemprivate, args=(message, name_sender, id_sender))
             t_mensagemprivate.start()
+        elif '/add' in message:
+            t_anonymou = threading.Thread(target=self.anonymou, args=(message, name_sender,id_sender))
+            t_anonymou.start()
         elif '/groom' in message:
             self.groom(new_host_id=id_sender)
         elif '/time_up' in message:
