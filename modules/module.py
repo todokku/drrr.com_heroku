@@ -297,7 +297,7 @@ class Commands(object):
                                        'preferredquality': '192',
                           }],
                         }
-                        self.post(message="▷Carregando▷")
+                        self.post(message="▷Colocando na Playlist...▷")
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
