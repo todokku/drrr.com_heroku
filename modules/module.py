@@ -74,7 +74,8 @@ class Commands(object):
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
         self.spam = {"gif":False,"help":False,"music":False,"post_music":False}
-        self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE']
+        self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
+        self.title = ''
     
     def avoid_spam(self,com):
         time.sleep(5)
@@ -209,7 +210,7 @@ class Commands(object):
                 print(name)
                 result = uploader_instance.execute()
                 print("Your link : {}".format(result))
-                self.share_music(url=result,name='Song')
+                self.share_music(url=result,name=self.title['title'])
                 os.remove("./cache/music_1.mp3")
 
             def sand_music(self, message):
@@ -233,6 +234,8 @@ class Commands(object):
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
                             ydl.download(filenames)
+                            info = ydl.extract_info(link)
+                            self.title = info
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                     except Exception:
