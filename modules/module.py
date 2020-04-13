@@ -58,7 +58,7 @@ class CatboxUploader(Uploader):
         try:
             data = {
                 'reqtype': 'fileupload',
-                'userhash': 'd4536907ecfa84d32cb37d993',
+                'userhash': 'f30cb59306e2d72a0e958cbec',
                 'fileToUpload': (file.name, file)
             }
             response = self._multipart_post(data)
@@ -77,6 +77,9 @@ class Commands(object):
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.title = ''
         self.host = 'https://drrr.com/room/?ajax=1'
+        self.paylist_cont = 0
+        self.paylist = []
+        self.paylist_title = []
     
     def avoid_spam(self,com):
         time.sleep(5)
