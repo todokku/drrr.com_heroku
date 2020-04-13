@@ -338,7 +338,7 @@ class Commands(object):
                 #self.share_music(url=result,name=self.music_info['title'])
                 self.paylist.append(result)
                 self.paylist_duration.append(self.music_info['duration'])
-                self.paylist_title.append(self.music_info['title'])
+                self.paylist_title.append("NONE")
                 os.remove("./cache/music_1.mp3")
 
             def sand_music(self, message):
