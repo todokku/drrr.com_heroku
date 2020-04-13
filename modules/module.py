@@ -224,7 +224,7 @@ class Commands(object):
     def help(self, message, name_sender):
         commandName = 'help'
         if self.spam[commandName] == False:
-            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/m music(ID)|\n |/post_music|\n |/admin|\n |/adm_list|")
+            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n |/play|\n|/pause|\n |/post_music|\n |/admin|\n |/adm_list|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
