@@ -75,11 +75,13 @@ class Commands(object):
         self.start_time = datetime.datetime.utcnow()
         self.spam = {"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
-        self.title = ''
+        self.music_info = ''
         self.host = 'https://drrr.com/room/?ajax=1'
         self.paylist_cont = 0
+        self.paylist_duration = []
         self.paylist = []
         self.paylist_title = []
+        self.pause = True
     
     def avoid_spam(self,com):
         time.sleep(5)
@@ -240,7 +242,27 @@ class Commands(object):
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
-    def music(self, message, name_sender, id_sender):
+    def play(self):
+        self.pause = False
+        while True:
+            try:
+                if self.pause == False:
+                    self.share_music(url=self.paylist[self.paylist_cont],name=self.paylist_title[self.paylist_cont])
+                    self.paylist_cont += 1
+                    loop = self.paylist_cont - 1
+                    time.sleep(self.paylist_duration[loop])
+                else:
+                    break
+            except Exception as e:
+                self.post(message="Playlist Vazia")
+                break
+
+    def pause_playlist(self):
+        self.pause = True
+        self.post(message="Playlist Pausada")
+
+
+    def playlist(self, message, name_sender, id_sender):
         commandName = 'music'
         if self.spam[commandName] == False:
             uploader_classes = {
@@ -253,13 +275,16 @@ class Commands(object):
                 print(name)
                 result = uploader_instance.execute()
                 print("Your link : {}".format(result))
-                self.share_music(url=result,name=self.title['title'])
+                #self.share_music(url=result,name=self.music_info['title'])
+                self.paylist.append(result)
+                self.paylist_duration.append(self.music_info['duration'])
+                self.paylist_title.append(self.music_info['title'])
                 os.remove("./cache/music_1.mp3")
 
             def sand_music(self, message):
-                if re.findall('/m', message):
+                if re.findall('/add', message):
                     try:
-                        message = message[4:]
+                        message = message[6:]
                         print(message)
                         title = 'music_1'
                         extp = '.webm'
@@ -278,14 +303,15 @@ class Commands(object):
                             filenames = ([link])
                             ydl.download(filenames)
                             info = ydl.extract_info(link)
-                            self.title = info
+                            self.music_info = info
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                        self.avoid_spam(commandName)
                     except Exception:
                         self.post(message="Erro Link Invalido")
-            sand_music(self,message=message)
+                        self.avoid_spam(commandName)
             self.spam[commandName] = True
-            self.avoid_spam(commandName)
+            sand_music(self,message=message)
             
 
     def ghipy(self, message, name_sender, id_sender):
@@ -428,11 +454,20 @@ class Commands(object):
             t_ghipy = threading.Thread(
                 target=self.ghipy, args=(message, name_sender, id_sender))
             t_ghipy.start()
-        elif '/m' in message:
+#===================comandos de musica=======================#
+        elif '/add' in message:
             t_music = threading.Thread(
-                target=self.music, args=(message, name_sender,id_sender))
+                target=self.playlist, args=(message, name_sender,id_sender))
             t_music.start()
-
+        elif '/play' in message:
+            t_play = threading.Thread(
+                target=self.play)
+            t_play.start()
+        elif '/pause' in message:
+            t_pause = threading.Thread(
+                target=self.pause_playlist)
+            t_pause.start()
+#===================fim=======================#
         elif '/post_music' in message:
             t_music_help = threading.Thread(
                 target=self.music_help, args=(message, name_sender))
