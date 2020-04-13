@@ -304,7 +304,6 @@ class Commands(object):
                                        'preferredquality': '192',
                           }],
                         }
-                        self.post(message="▷Colocando na Playlist...▷")
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
@@ -314,6 +313,7 @@ class Commands(object):
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
+                        self.post(message="@{}▷Colocando na Playlist...▷".format(name_sender))
                     except Exception:
                         self.post(message="Erro Link Invalido")
                         self.avoid_spam(commandName)
@@ -366,7 +366,7 @@ class Commands(object):
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
-                        self.post(message="▷Colocando na Playlist...▷")
+                        self.post(message="@Anonymo ▷Colocando na Playlist...▷")
                     except Exception:
                         self.post(message="Erro Link Invalido")
                         self.avoid_spam(commandName)
