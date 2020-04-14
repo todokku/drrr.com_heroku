@@ -299,7 +299,7 @@ class Commands(object):
                 self.post(message="/me Proxima Musica: {} ".format(self.paylist_title[nextCont]))
             except Exception:
                 self.post(message="/me Playlist Vazia")
-            time.sleep(60)
+            time.sleep(10)
             self.avoid_spam(commandName)
 
     def playlist(self, message, name_sender, id_sender):
