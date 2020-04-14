@@ -295,12 +295,7 @@ class Commands(object):
         if self.spam[commandName] == False:
             self.spam[commandName] = True
             try:
-                if self.paylist_cont == 0:
-                    pass
-                else:
-                    self.nextCont = self.paylist_cont
-                    self.nextCont +=1
-                self.post(message="/me Proxima Musica: {} ".format(self.paylist_title[self.nextCont]))
+                self.post(message="/me Proxima Musica: {} ".format(self.paylist_title[self.paylist_cont]))
             except Exception:
                 self.post(message="/me Playlist Vazia")
             time.sleep(10)
