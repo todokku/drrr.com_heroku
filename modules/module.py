@@ -83,6 +83,7 @@ class Commands(object):
         self.paylist_title = []
         self.pause = True
         self.nextCont = 0
+        self.playStatus = False
     
     def avoid_spam(self,com):
         time.sleep(5)
@@ -252,28 +253,33 @@ class Commands(object):
             self.avoid_spam(commandName)
 
     def play(self):
-        self.pause = False
-        while True:
-            try:
-                if self.pause == False:
-                    self.share_music(url=self.paylist[self.paylist_cont],name=self.paylist_title[self.paylist_cont])
-                    self.paylist_cont += 1
-                    loop = self.paylist_cont - 1
-                    for i in range(0,self.paylist_duration[loop]):
-                        if self.pause == True:
-                            return
-                        time.sleep(1)
-                else:
+        if self.playStatus == False:
+            self.playStatus = True
+            self.pause = False
+            while True:
+                try:
+                    if self.pause == False:
+                        self.share_music(url=self.paylist[self.paylist_cont],name=self.paylist_title[self.paylist_cont])
+                        self.paylist_cont += 1
+                        loop = self.paylist_cont - 1
+                        for i in range(0,self.paylist_duration[loop]):
+                            if self.pause == True:
+                                return
+                            time.sleep(1)
+                    else:
+                        return
+                except Exception as e:
+                    self.post(message="/me Playlist Vazia")
                     return
-            except Exception as e:
-                self.post(message="/me Playlist Vazia")
-                return
+        else:
+            self.post(message="/me:Musica em andamento")
 
     def pause_playlist(self):
         commandName = 'pause'
         if self.spam[commandName] == False:
             self.spam[commandName] = True
             self.pause = True
+            self.playStatus = False
             self.post(message="/me Playlist Pausada")
             time.sleep(10)
             self.avoid_spam(commandName)
