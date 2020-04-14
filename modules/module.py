@@ -322,18 +322,22 @@ class Commands(object):
 
             def sand_music(self, message):
                 if re.findall('/add', message):
-                    message = message[6:]
-                    link = "https://www.youtube.com/watch?v={}".format(message)
-                    ydl_consult = {
-                    'quiet': True,
-                    'skip_download': True,
-                    }
-                    with youtube_dl.YoutubeDL(ydl_consult) as ydl:
-                        info = ydl.extract_info(link)
-                        if info['duration'] > 600 :
-                            self.post(message="/me Musica cancelada devido a sua duração.!")
-                            self.avoid_spam(commandName)
-                            return
+                    try:
+                        message = message[6:]
+                        link = "https://www.youtube.com/watch?v={}".format(message)
+                        ydl_consult = {
+                        'quiet': True,
+                        'skip_download': True,
+                        }
+                        with youtube_dl.YoutubeDL(ydl_consult) as ydl:
+                            info = ydl.extract_info(link)
+                            if info['duration'] > 600 :
+                                self.post(message="/me Musica cancelada devido a sua duração.!")
+                                self.avoid_spam(commandName)
+                                return
+                    except Exception:
+                        self.post(message="/me Erro Link Invalido")
+                        self.avoid_spam(commandName)
                     try:
                         print(message)
                         title = 'music_1'
@@ -386,18 +390,22 @@ class Commands(object):
 
             def sand_music(self, message):
                 if re.findall('/add', message):
-                    message = message[6:]
-                    link = "https://www.youtube.com/watch?v={}".format(message)
-                    ydl_consult = {
-                    'quiet': True,
-                    'skip_download': True,
-                    }
-                    with youtube_dl.YoutubeDL(ydl_consult) as ydl:
-                        info = ydl.extract_info(link)
-                        if info['duration'] > 600 :
-                            self.post(message="/me Musica cancelada devido a sua duração.!")
-                            self.avoid_spam(commandName)
-                            return
+                    try:
+                        message = message[6:]
+                        link = "https://www.youtube.com/watch?v={}".format(message)
+                        ydl_consult = {
+                        'quiet': True,
+                        'skip_download': True,
+                        }
+                        with youtube_dl.YoutubeDL(ydl_consult) as ydl:
+                            info = ydl.extract_info(link)
+                            if info['duration'] > 600 :
+                                self.post(message="/me Musica cancelada devido a sua duração.!")
+                                self.avoid_spam(commandName)
+                                return
+                    except Exception:
+                        self.post(message="/me Erro Link Invalido")
+                        self.avoid_spam(commandName)
                     try:
                         print(message)
                         title = 'music_1'
@@ -467,15 +475,6 @@ class Commands(object):
            self.post(message='%s' % (message)) #imprime a menssagem dita
 
 
-
-    def groom(self,new_host_id):
-        new_host_body = {
-            'new_host': new_host_id
-        }
-        nh = self.session.post(self.host, new_host_body)
-        nh.close()
-        return True
-
     def loop_msg(self):
         while 1:
             time.sleep(600)
@@ -505,6 +504,20 @@ class Commands(object):
         uptime_stamp = time_format.format(d=days, h=hours, m=minutes, s=seconds)
         self.post(message='/me Online:{}'.format(uptime_stamp))
 
+    
+    def ship(self):
+        ...
+
+
+
+
+    def groom(self,new_host_id):
+        new_host_body = {
+            'new_host': new_host_id
+        }
+        nh = self.session.post(self.host, new_host_body)
+        nh.close()
+        return True
 
     def admin_kick(self, message, name_sender, tripcode, id_sender):
         for i in range(len(self.admin_list)):
