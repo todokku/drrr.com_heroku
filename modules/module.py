@@ -488,7 +488,7 @@ class Commands(object):
             ajuda_musica = "https://i.imgur.com/hmmERQi.png"
             self.post(message="Como usar musica.", url='{}'.format(ajuda_musica))  # deixa a sala
             self.spam[commandName] = True
-            time.sleep(120)
+            time.sleep(30)
             self.avoid_spam(commandName)
 
     def mensagemprivate(self, message, name_sender, to=''):
