@@ -338,6 +338,7 @@ class Commands(object):
                     except Exception:
                         self.post(message="/me Erro Link Invalido")
                         self.avoid_spam(commandName)
+                        return
                     try:
                         print(message)
                         title = 'music_1'
@@ -406,6 +407,7 @@ class Commands(object):
                     except Exception:
                         self.post(message="/me Erro Link Invalido")
                         self.avoid_spam(commandName)
+                        return
                     try:
                         print(message)
                         title = 'music_1'
