@@ -73,7 +73,7 @@ class Commands(object):
         self.session = requests.session()
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
-        self.spam = {"skip":False,"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
+        self.spam = {"next":False,"skip":False,"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.music_info = ''
         self.host = 'https://drrr.com/room/?ajax=1'
@@ -232,14 +232,14 @@ class Commands(object):
     def help(self, message, name_sender):
         commandName = 'help'
         if self.spam[commandName] == False:
-            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n |/play|\n|/skip|\n|/pause|\n|/post_music|\n |/admin|\n |/adm_list|")
+            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n|/play|\n|/skip|\n|/pause|\n|/next|\n|/post_music|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
     def admin(self, message, name_sender):
         commandName = 'admin'
         if self.spam[commandName] == False:
-            self.post(message="|==ADMIN==| \n |/kick name|\n |/ban name|\n |/room_name Name_room|\n |/room_info Description|")
+            self.post(message="|==ADMIN==|\n |/adm_list| \n |/kick name|\n |/ban name|\n |/room_name Name_room|\n |/room_info Description|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
@@ -289,6 +289,18 @@ class Commands(object):
             time;sleep(20)
             self.avoid_spam(commandName)
 
+    def next(self):
+        commandName = 'next'
+        if self.spam[commandName] == False:
+            self.spam[commandName] = True
+            try:
+                nextCont = self.paylist_cont
+                nextCont += 1
+                self.post(message="/me Proxima Musica: {} ".format(self.paylist_title[nextCont]))
+            except Exception:
+                self.post(message="/me Playlist Vazia")
+            time;sleep(60)
+            self.avoid_spam(commandName)
 
     def playlist(self, message, name_sender, id_sender):
         commandName = 'music'
@@ -574,6 +586,10 @@ class Commands(object):
             t_skip = threading.Thread(
                 target=self.skip_playlist)
             t_skip.start()
+        elif '/next' in message:
+            t_next = threading.Thread(
+                target=self.next)
+            t_next.start()
 #===================fim=======================#
         elif '/post_music' in message:
             t_music_help = threading.Thread(
