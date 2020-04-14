@@ -389,6 +389,7 @@ class Commands(object):
                             if info['duration'] > 600 :
                                 self.post(message="/me Musica cancelada devido a sua duração.!")
                                 return
+                            print(info['duration'])
                             self.post(message="/me ▷Carregando musica▷")
                             ydl.download(filenames)
                             self.music_info = info
