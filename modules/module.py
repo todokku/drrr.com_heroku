@@ -326,7 +326,6 @@ class Commands(object):
                           }],
                         }
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                            self.post(message="/me ▷Carregando▷...")
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
                             info = ydl.extract_info(link)
