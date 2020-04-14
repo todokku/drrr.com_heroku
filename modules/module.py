@@ -290,6 +290,7 @@ class Commands(object):
         if self.spam[commandName] == False:
             self.spam[commandName] = True
             self.pause = True
+            self.playStatus = False
             self.post(message="/me Musica Pulada")
             time.sleep(2)
             t_skip = threading.Thread(target=self.play())
