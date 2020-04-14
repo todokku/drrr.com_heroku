@@ -270,6 +270,7 @@ class Commands(object):
                         return
                 except Exception as e:
                     self.post(message="/me Playlist Vazia")
+                    self.playStatus = False
                     return
         else:
             self.post(message="/me:Musica em andamento")
@@ -300,6 +301,7 @@ class Commands(object):
         commandName = 'next'
         if self.spam[commandName] == False:
             self.spam[commandName] = True
+            self.playStatus = False
             try:
                 self.post(message="/me Proxima Musica: {} ".format(self.paylist_title[self.paylist_cont]))
             except Exception:
