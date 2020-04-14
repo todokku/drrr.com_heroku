@@ -73,7 +73,7 @@ class Commands(object):
         self.session = requests.session()
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
-        self.spam = {"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
+        self.spam = {"skip":False"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.music_info = ''
         self.host = 'https://drrr.com/room/?ajax=1'
@@ -125,6 +125,14 @@ class Commands(object):
         }
         kc = self.session.post(self.host, kick_body)
         kc.close()
+
+    def ban_room(self,id_sender):
+        ban_body = {
+            'ban': id_sender
+        }
+        kc = self.session.post(self.host, kick_body)
+        kc.close()
+
 
     def new_host(self, new_host_id):
         new_host_body = {
@@ -224,7 +232,7 @@ class Commands(object):
     def help(self, message, name_sender):
         commandName = 'help'
         if self.spam[commandName] == False:
-            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n |/play|\n|/pause|\n |/post_music|\n |/admin|\n |/adm_list|")
+            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n |/play|\n|/skip|\n|/pause|\n|/post_music|\n |/admin|\n |/adm_list|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
@@ -257,16 +265,29 @@ class Commands(object):
                 else:
                     return
             except Exception as e:
-                self.post(message="Playlist Vazia")
+                self.post(message="/me Playlist Vazia")
                 return
 
     def pause_playlist(self):
         commandName = 'pause'
-        self.spam[commandName] = True
-        self.pause = True
-        self.post(message="Playlist Pausada")
-        time.sleep(10)
-        self.avoid_spam(commandName)
+        if self.spam[commandName] == False:
+            self.spam[commandName] = True
+            self.pause = True
+            self.post(message="/me Playlist Pausada")
+            time.sleep(10)
+            self.avoid_spam(commandName)
+
+    def skip_playlist(self):
+        commandName = 'skip'
+        if self.spam[commandName] == False:
+            self.spam[commandName] = True
+            self.pause = True
+            self.post(message="/me Musica Pulada")
+            time.sleep(2)
+            t_skip = threading.Thread(target=self.play())
+            t_skip.start()
+            time;sleep(20)
+            self.avoid_spam(commandName)
 
 
     def playlist(self, message, name_sender, id_sender):
@@ -305,15 +326,20 @@ class Commands(object):
                           }],
                         }
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                            self.post(message="/me ▷Carregando▷...")
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
-                            ydl.download(filenames)
                             info = ydl.extract_info(link)
+                            if info['duration'] > 600 :
+                                self.post(message="/me Musica cancelada devido a sua duração.!")
+                                return
+                            self.post(message="/me ▷Carregando musica▷")
+                            ydl.download(filenames)
                             self.music_info = info
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
-                        self.post(message="@{}▷Colocando na Playlist...▷".format(name_sender))
+                        self.post(message="@{}▷Colocado na Playlist...▷".format(name_sender))
                     except Exception:
                         self.post(message="Erro Link Invalido")
                         self.avoid_spam(commandName)
@@ -360,13 +386,17 @@ class Commands(object):
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                             link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
-                            ydl.download(filenames)
                             info = ydl.extract_info(link)
+                            if info['duration'] > 600 :
+                                self.post(message="/me Musica cancelada devido a sua duração.!")
+                                return
+                            self.post(message="/me ▷Carregando musica▷")
+                            ydl.download(filenames)
                             self.music_info = info
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
-                        self.post(message="@Anonymo ▷Colocando na Playlist...▷")
+                        self.post(message="@Anonymo ▷Colocada na Playlist...▷")
                     except Exception:
                         self.post(message="Erro Link Invalido")
                         self.avoid_spam(commandName)
@@ -401,7 +431,7 @@ class Commands(object):
     def music_help(self, message, name_sender):
         commandName = 'post_music'
         if self.spam[commandName] == False:
-            ajuda_musica = "https://i.imgur.com/qDe9YpO.png"
+            ajuda_musica = "https://i.imgur.com/hmmERQi.png"
             self.post(message="Como usar musica.", url='{}'.format(ajuda_musica))  # deixa a sala
             self.spam[commandName] = True
             time.sleep(120)
@@ -527,6 +557,10 @@ class Commands(object):
             t_pause = threading.Thread(
                 target=self.pause_playlist)
             t_pause.start()
+        elif '/skip' in message:
+            t_skip = threading.Thread(
+                target=self.skip_playlist)
+            t_skip.start()
 #===================fim=======================#
         elif '/post_music' in message:
             t_music_help = threading.Thread(
