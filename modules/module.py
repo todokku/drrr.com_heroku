@@ -311,8 +311,19 @@ class Commands(object):
 
             def sand_music(self, message):
                 if re.findall('/add', message):
+                    message = message[6:]
+                    link = "https://www.youtube.com/watch?v={}".format(message)
+                    ydl_consult = {
+                    'quiet': True,
+                    'skip_download': True,
+                    }
+                    with youtube_dl.YoutubeDL(ydl_consult) as ydl:
+                        info = ydl.extract_info(link)
+                        if info['duration'] > 600 :
+                            self.post(message="/me Musica cancelada devido a sua duração.!")
+                            self.avoid_spam(commandName)
+                            return
                     try:
-                        message = message[6:]
                         print(message)
                         title = 'music_1'
                         extp = '.webm'
@@ -325,22 +336,18 @@ class Commands(object):
                                        'preferredquality': '192',
                           }],
                         }
+                        self.post(message="/me ▷Carregando musica▷")
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                            link = "https://www.youtube.com/watch?v={}".format(message)
+                            #link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
-                            info = ydl.extract_info(link)
-                            if info['duration'] > 600 :
-                                self.post(message="/me Musica cancelada devido a sua duração.!")
-                                return
-                            self.post(message="/me ▷Carregando musica▷")
                             ydl.download(filenames)
                             self.music_info = info
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
-                        self.post(message="@{}▷Colocado na Playlist...▷".format(name_sender))
+                        self.post(message="/me @{}▷Musica Colocada na Playlist...▷".format(name_sender))
                     except Exception:
-                        self.post(message="Erro Link Invalido")
+                        self.post(message="/me Erro Link Invalido")
                         self.avoid_spam(commandName)
             self.spam[commandName] = True
             sand_music(self,message=message)
@@ -368,8 +375,19 @@ class Commands(object):
 
             def sand_music(self, message):
                 if re.findall('/add', message):
+                    message = message[6:]
+                    link = "https://www.youtube.com/watch?v={}".format(message)
+                    ydl_consult = {
+                    'quiet': True,
+                    'skip_download': True,
+                    }
+                    with youtube_dl.YoutubeDL(ydl_consult) as ydl:
+                        info = ydl.extract_info(link)
+                        if info['duration'] > 600 :
+                            self.post(message="/me Musica cancelada devido a sua duração.!")
+                            self.avoid_spam(commandName)
+                            return
                     try:
-                        message = message[6:]
                         print(message)
                         title = 'music_1'
                         extp = '.webm'
@@ -382,23 +400,18 @@ class Commands(object):
                                        'preferredquality': '192',
                           }],
                         }
+                        self.post(message="/me ▷Carregando musica▷")
                         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                            link = "https://www.youtube.com/watch?v={}".format(message)
+                            #link = "https://www.youtube.com/watch?v={}".format(message)
                             filenames = ([link])
-                            info = ydl.extract_info(link)
-                            if info['duration'] > 600 :
-                                self.post(message="/me Musica cancelada devido a sua duração.!")
-                                return
-                            print(info['duration'])
-                            self.post(message="/me ▷Carregando musica▷")
                             ydl.download(filenames)
                             self.music_info = info
                         prefixo ='.mp3'
                         upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
                         self.avoid_spam(commandName)
-                        self.post(message="@Anonymo ▷Colocada na Playlist...▷")
+                        self.post(message="/me anonymous ▷Musica Colocada na Playlist...▷")
                     except Exception:
-                        self.post(message="Erro Link Invalido")
+                        self.post(message="/me Erro Link Invalido")
                         self.avoid_spam(commandName)
             self.spam[commandName] = True
             sand_music(self,message=message)
