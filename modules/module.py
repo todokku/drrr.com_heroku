@@ -307,6 +307,17 @@ class Commands(object):
             time.sleep(10)
             self.avoid_spam(commandName)
 
+    def rebotPlaylist(self):
+        self.post(message="/me Restart Playlist Total de Musicas: {}".format(len(self.paylist)))
+        self.paylist_cont = 0
+        self.pause = True
+        self.playStatus = False
+        time.sleep(1)
+        t_skip = threading.Thread(target=self.play())
+        t_skip.start()
+
+
+
     def playlist(self, message, name_sender, id_sender):
         commandName = 'music'
         if self.spam[commandName] == False:
@@ -649,4 +660,7 @@ class Commands(object):
         elif'/room_info' in message:
             t_adm_description = threading.Thread(target=self.setRomm_Description, args=(message, tripcode))
             t_adm_description.start()
+        elif'/rebot_p' in message:
+            t_rebotPlaylist = threading.Thread(target=self.rebotPlaylist)
+            t_rebotPlaylist.start()
         return False
