@@ -232,7 +232,7 @@ class Commands(object):
     def help(self, message, name_sender):
         commandName = 'help'
         if self.spam[commandName] == False:
-            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n|/play|\n|/skip|\n|/pause|\n|/next|\n|/post_music|")
+            self.post(message="|==Comandos==|\n |/help|\n |/gif naruto|\n |/add music(ID)|\n|/play|\n|/skip|\n|/pause|\n|/queue|\n|/post_music|")
             self.spam[commandName] = True
             self.avoid_spam(commandName)
 
@@ -286,7 +286,7 @@ class Commands(object):
             time.sleep(2)
             t_skip = threading.Thread(target=self.play())
             t_skip.start()
-            time;sleep(20)
+            time.sleep(20)
             self.avoid_spam(commandName)
 
     def next(self):
@@ -586,7 +586,7 @@ class Commands(object):
             t_skip = threading.Thread(
                 target=self.skip_playlist)
             t_skip.start()
-        elif '/next' in message:
+        elif '/queue' in message:
             t_next = threading.Thread(
                 target=self.next)
             t_next.start()
