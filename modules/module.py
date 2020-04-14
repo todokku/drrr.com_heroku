@@ -73,7 +73,7 @@ class Commands(object):
         self.session = requests.session()
         self.start_time = ''
         self.start_time = datetime.datetime.utcnow()
-        self.spam = {"skip":False"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
+        self.spam = {"skip":False,"pause":False,"admin_list":False,"admin":False,"gif":False,"help":False,"music":False,"post_music":False}
         self.admin_list = ['Pa7gprEIMI','TqOzGmy5V.','YJMpA.Wge2','NICKx2f4bE','vaW3kagV3.']
         self.music_info = ''
         self.host = 'https://drrr.com/room/?ajax=1'
