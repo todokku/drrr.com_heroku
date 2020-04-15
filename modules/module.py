@@ -20,52 +20,41 @@ ts_last_greeting = 0
 
 
 class Uploader:
-    def __init(self, filename, file_host_url):
-        self.filename = filename
-        self.file_host_url = file_host_url
-
-    def _multipart_post(self, data):
-        encoder = MultipartEncoder(fields=data)
-        monitor = MultipartEncoderMonitor(encoder)
-        r = requests.post(self.file_host_url,
-                          data=monitor,
-                          headers={'Content-Type': monitor.content_type})
-        return r
-
-class FileioUploader(Uploader):
-    def __init__(self, filename):
-        self.filename = filename
-        self.file_host_url = "https://file.io"
-
-    def execute(self):
-        file = open('./cache/{}'.format(self.filename), 'rb')
+    def uploadGofile(filename):
         try:
-            data = {'file': (file.name, file, self._mimetype())}
-            response = self._multipart_post(data)
-        finally:
-            file.close()
+            #sistema de upload "multipart/form-data" que envia o arquivo para o  servidor 
+            mp_encoder = MultipartEncoder(
+                fields={
+                    'filesUploaded': ('./cache/{}'.format(filename), open('./cache/{}'.format(filename), 'rb'))
+                }
+            )
+            r = requests.post(
+                'https://srv-file9.gofile.io/upload',
+                data=mp_encoder, 
+                headers={'Content-Type': mp_encoder.content_type}
+            )
+            #pegando a resposta do json
+            scrap =  r.json()
+            #retornando o "token do arquivo"
+            result = scrap['data']['code']
+            return result,filename
+        except Exception as e:
+            print(e)
 
-        return response.json()['link']
-
-
-class CatboxUploader(Uploader):
-    def __init__(self, filename):
-        self.filename = filename
-        self.file_host_url = "https://catbox.moe/user/api.php"
-
-    def execute(self):
-        file = open('./cache/{}'.format(self.filename), 'rb')
+    def validator(result,filename):
         try:
-            data = {
-                'reqtype': 'fileupload',
-                'userhash': 'f30cb59306e2d72a0e958cbec',
-                'fileToUpload': (file.name, file)
-            }
-            response = self._multipart_post(data)
-        finally:
-            file.close()
-
-        return response.text
+            session = requests.Session()
+            #valida o Arquivo na api
+            validLink = 'https://apiv2.gofile.io/getServer?c={}'.format(result)
+            #coloca ele disponivel para download
+            uploadLink = 'https://srv-file9.gofile.io/getUpload?c={}'.format(result)
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137'}
+            session.get(validLink, headers=headers)
+            session.get(uploadLink, headers=headers)
+            r = 'https://srv-file9.gofile.io/download/{}/{}'.format(result, filename)
+            return r
+        except Exception as e:
+            print(e)
 
 
 class Commands(object):
@@ -84,6 +73,7 @@ class Commands(object):
         self.pause = True
         self.nextCont = 0
         self.playStatus = False
+        self.name='music_1.mp3'
     
     def avoid_spam(self,com):
         time.sleep(5)
@@ -324,15 +314,11 @@ class Commands(object):
     def playlist(self, message, name_sender, id_sender):
         commandName = 'music'
         if self.spam[commandName] == False:
-            uploader_classes = {
-            "catbox": CatboxUploader,
-            "fileio": FileioUploader}
 
-            def upload(self, host, name):
-                uploader_class = uploader_classes[host]
-                uploader_instance = uploader_class(name)
-                print(name)
-                result = uploader_instance.execute()
+            def upload(self,filename):
+                #novo hospedagem de dados
+                uploader_class = Uploader.uploadGofile(filename=filename)
+                result = Uploader.validator(result=uploader_class[0],filename=uploader_class[1])
                 print("Your link : {}".format(result))
                 #self.share_music(url=result,name=self.music_info['title'])
                 self.paylist.append(result)
@@ -378,30 +364,24 @@ class Commands(object):
                             filenames = ([link])
                             ydl.download(filenames)
                             self.music_info = info
-                        prefixo ='.mp3'
-                        upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                        upload(self,filename=self.name)
                         self.avoid_spam(commandName)
                         self.post(message="/me @{}▷Musica Colocada na Playlist...▷".format(name_sender))
-                    except Exception:
+                    except Exception as e:
                         self.post(message="/me Erro Link Invalido")
                         self.avoid_spam(commandName)
             self.spam[commandName] = True
             sand_music(self,message=message)
 
 
-
     def playlist_anonimo(self, message, name_sender, id_sender):
         commandName = 'music'
         if self.spam[commandName] == False:
-            uploader_classes = {
-            "catbox": CatboxUploader,
-            "fileio": FileioUploader}
 
-            def upload(self, host, name):
-                uploader_class = uploader_classes[host]
-                uploader_instance = uploader_class(name)
-                print(name)
-                result = uploader_instance.execute()
+            def upload(self,filename):
+                #novo hospedagem de dados
+                uploader_class = Uploader.uploadGofile(filename=filename)
+                result = Uploader.validator(result=uploader_class[0],filename=uploader_class[1])
                 print("Your link : {}".format(result))
                 #self.share_music(url=result,name=self.music_info['title'])
                 self.paylist.append(result)
@@ -447,11 +427,10 @@ class Commands(object):
                             filenames = ([link])
                             ydl.download(filenames)
                             self.music_info = info
-                        prefixo ='.mp3'
-                        upload(self,host = 'catbox', name = '{}{}'.format(title, prefixo))
+                        upload(self,filename=self.name)
                         self.avoid_spam(commandName)
-                        self.post(message="/me anonymous ▷Musica Colocada na Playlist...▷")
-                    except Exception:
+                        self.post(message="/me @{}▷Musica Colocada na Playlist...▷".format(name_sender))
+                    except Exception as e:
                         self.post(message="/me Erro Link Invalido")
                         self.avoid_spam(commandName)
             self.spam[commandName] = True
