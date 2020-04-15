@@ -50,6 +50,7 @@ class Uploader:
             #coloca ele disponivel para download
             uploadLink = 'https://srv-file9.gofile.io/getUpload?c={}'.format(result)
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137'}
+            time.sleep(3)
             session.get(validLink, headers=headers)
             session.get(uploadLink, headers=headers)
             print(session.get(validLink, headers=headers))
