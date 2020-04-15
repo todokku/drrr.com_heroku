@@ -44,15 +44,15 @@ class Uploader:
 
     def validator(result,filename):
         try:
-            session = requests.Session()
             #valida o Arquivo na api
             validLink = 'https://apiv2.gofile.io/getServer?c={}'.format(result)
             #coloca ele disponivel para download
             uploadLink = 'https://srv-file9.gofile.io/getUpload?c={}'.format(result)
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137'}
-            time.sleep(3)
-            session.get(validLink, headers=headers)
-            session.get(uploadLink, headers=headers)
+            session = requests.get(validLink, headers=headers)
+            session1 = requests.get(uploadLink, headers=headers)
+            print(session.json())
+            print(session1.json())
             r = 'https://srv-file9.gofile.io/download/{}/{}'.format(result, filename)
             return r
         except Exception as e:
@@ -476,13 +476,7 @@ class Commands(object):
         if re.findall('/say .*', message):
            message = message[5:] #conta 5 carateres e depois imprime aquilo escrito
            self.post(message='%s' % (message)) #imprime a menssagem dita
-    
-    def validador(self):
-        validLink = 'https://apiv2.gofile.io/getServer?c=zyPIxB'
-        uploadLink = 'https://srv-file9.gofile.io/getUpload?c=zyPIxB'
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137'}
-        self.session.get(validLink, headers=headers)
-        self.session.get(uploadLink, headers=headers)
+
 
     def loop_msg(self):
         while 1:
@@ -617,10 +611,6 @@ class Commands(object):
                 target=self.music_help, args=(message, name_sender))
             t_music_help.start()
 
-        elif '/validador' in message:
-            validador = threading.Thread(
-                target=self.validador)
-            validador.start()
 
     def handle_private_message(self, message, id_sender, name_sender, tripcode):
         if '/koi' in message:
