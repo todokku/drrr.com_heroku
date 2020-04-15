@@ -51,6 +51,8 @@ class Uploader:
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137'}
             session.get(validLink, headers=headers)
             session.get(uploadLink, headers=headers)
+            print(session.get(validLink, headers=headers))
+            print(ssion.get(uploadLink, headers=headers))
             r = 'https://srv-file9.gofile.io/download/{}/{}'.format(result, filename)
             return r
         except Exception as e:
