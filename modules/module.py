@@ -25,7 +25,8 @@ class Uploader:
             #sistema de upload "multipart/form-data" que envia o arquivo para o  servidor 
             mp_encoder = MultipartEncoder(
                 fields={
-                    'filesUploaded': ('./cache/{}'.format(filename), open('./cache/{}'.format(filename), 'rb'))
+                    'filesUploaded': ('./cache/{}'.format(filename), open('./cache/{}'.format(filename), 'rb')),
+                    'email':'athushollow@gmail.com'
                 }
             )
             r = requests.post(
