@@ -480,6 +480,7 @@ class Commands(object):
     def validador(self):
         validLink = 'https://apiv2.gofile.io/getServer?c=zyPIxB'
         uploadLink = 'https://srv-file9.gofile.io/getUpload?c=zyPIxB'
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36 OPR/67.0.3575.137'}
         self.session.get(validLink, headers=headers)
         self.session.get(uploadLink, headers=headers)
 
